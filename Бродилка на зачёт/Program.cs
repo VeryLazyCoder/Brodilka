@@ -786,7 +786,6 @@ namespace HodimBrodim
             Console.SetCursorPosition(0, 21);
             Console.WriteLine($"Осталось ходов: {--Program.MovesAvailable} ");
             Console.WriteLine($"Счётчик сокровищ: {TreasureCount}");
-            Console.WriteLine();
         }
         public void FightWithEnemy()
         {

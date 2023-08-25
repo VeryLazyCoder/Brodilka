@@ -11,7 +11,7 @@
             int maxWinResult = int.MaxValue;
             int maxLoseResult = 0;
             string path;
-            //int movesAvailable = 300;
+            int movesAvailable = 300;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
                 "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");

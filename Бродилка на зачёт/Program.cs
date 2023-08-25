@@ -19,6 +19,12 @@ namespace HodimBrodim
             var playersChoice = RecieveFromPlayerGameParametres();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
+
+
+
+
+
+
         loop1:     
             GameMap.GetMapSize(playersChoice[0]);
             PlayerInfo.Initialize(playersChoice[0]);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace HodimBrodim
 {
@@ -19,7 +21,7 @@ namespace HodimBrodim
             var playersChoice = RecieveFromPlayerGameParametres();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
-        loop1:     
+        loop1:
             GameMap.GetMapSize(playersChoice[0]);
             PlayerInfo.Initialize(playersChoice[0]);
             //PlayerInfo.AddRecords(playersChoice[0], 90);
@@ -27,8 +29,8 @@ namespace HodimBrodim
             GameMap map = new GameMap();
             var enemies = ChooseEnemyCount(map, playersChoice[1]);
             DrawBonusesForPlayer(map);
-            Player player = new Player(map);            
-            
+            Player player = new Player(map);
+
             Console.Clear();
             while (true)
             {
@@ -48,20 +50,16 @@ namespace HodimBrodim
                         Console.WriteLine($"Ваш предудущий результат {previousResult} собранных сокровищ");
                         Console.SetCursorPosition(40, 17);
                         if (maxLoseResult > map.TreasuresOnTheMap)
-                        {
                             Console.WriteLine($"Ваш лучший результат {maxLoseResult} ходов");
-                        }
                         else
-                        {
                             Console.WriteLine($"Ваш лучший результат {maxLoseResult} собранных сокровищ");
-                        }
                     }
                 }
                 player.ShowPlayerStatistic();
                 map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
                 for (int i = 0; i < enemies.Count; i++)
                 {
-                    enemies[i].EnemyBehavior();
+                    enemies[i].BfsMovement(player);
                     if (enemies[i].CollisionWithEnemy(player))
                     {
                         player.FightWithEnemy();
@@ -71,32 +69,30 @@ namespace HodimBrodim
                     }
                 }
                 RandomEvents.RandomEvent(map, player, enemies);
-                if (map.Map[player.X, player.Y] == 'X')
+                if (map[player.Position] == 'X')
                 {
                     player.AddTreasure();
-                    map.Map[player.X, player.Y] = ' ';
+                    map[player.Position] = ' ';
                     player.Health /= 10;
                     player.Damage /= 10;
-
                 }
-                if (map.Map[player.X, player.Y] == '@')
-                {
+                if (map[player.Position] == '@')
                     MovesAvailable -= 10;
-                }
-                if (map.Map[player.X, player.Y] == 'D')
+
+                if (map[player.Position] == 'D')
                 {
                     player.Damage = player.Damage / 4;
-                    map.Map[player.X, player.Y] = ' ';
+                    map[player.Position] = ' ';
                 }
-                if (map.Map[player.X, player.Y] == 'A')
+                if (map[player.Position] == 'A')
                 {
                     player.Armor = 2;
-                    map.Map[player.X, player.Y] = ' ';
+                    map[player.Position] = ' ';
                 }
-                if (map.Map[player.X, player.Y] == 'H')
+                if (map[player.Position] == 'H')
                 {
                     player.Health = player.Health / 4;
-                    map.Map[player.X, player.Y] = ' ';
+                    map[player.Position] = ' ';
                 }
                 if (player.TreasureCount == map.TreasuresOnTheMap || enemies.Count == 0)
                     break;
@@ -104,7 +100,7 @@ namespace HodimBrodim
                 {
                     Console.Clear();
                     Console.WriteLine("Вы не справились :( Игра окончена");
-                    
+
                     Console.WriteLine("Хотите улучшить результат? да/нет");
                     string userInput = Console.ReadLine();
                     showresult = true;
@@ -113,7 +109,7 @@ namespace HodimBrodim
                     {
                         Console.Clear();
                         previousResult = player.TreasureCount;
-                        ifWin = false;                       
+                        ifWin = false;
                         switch (everWin)
                         {
                             case true:
@@ -121,24 +117,22 @@ namespace HodimBrodim
                                 break;
                             case false:
                                 if (previousResult >= maxLoseResult)
-                                {
                                     maxLoseResult = previousResult;
-                                }
                                 break;
                         }
                         goto loop1;
-                    }                    
+                    }
                     ShowFinalResult(everWin, maxWinResult, player);
                     Environment.Exit(0);
                 }
-                Console.SetCursorPosition(player.X, player.Y);
+                Console.SetCursorPosition(player.Position.X, player.Position.Y);
                 Paint('T', ConsoleColor.Green);
                 ConsoleKeyInfo pressedKey = Console.ReadKey();
                 PlayerInfo.ShowRecordsTable(pressedKey);
                 player.Move(pressedKey, map.Map);
             }
             Console.Clear();
-            Console.WriteLine($"Вы победиди за {startMoves - MovesAvailable} ходов, поздравляю!!!");          
+            Console.WriteLine($"Вы победиди за {startMoves - MovesAvailable} ходов, поздравляю!!!");
             everWin = true;
             previousResult = startMoves - MovesAvailable;
             showresult = true;
@@ -187,7 +181,7 @@ namespace HodimBrodim
             Console.ForegroundColor = defaultcolor;
         }
         private static void GiveAdviceToPlayer()
-        {            
+        {
             Console.Clear();
             Console.WriteLine("Краткая справка:\n");
             Console.WriteLine($"Добро пожаловать в тестовую бродилку. Ваш персонаж обозначен буквой Т" +
@@ -218,8 +212,8 @@ namespace HodimBrodim
             {
                 Random rand = new Random();
                 y = rand.Next(0, map.GetLength(1));
-                if (map[mapX, y] != '-' & map[mapX, y] != '|' & map[mapX, y] != 'T')                
-                    correctY = true;               
+                if (map[mapX, y] != '-' & map[mapX, y] != '|' & map[mapX, y] != 'T')
+                    correctY = true;
             }
             return y;
         }
@@ -260,7 +254,7 @@ namespace HodimBrodim
                 enemies.Add(new Enemy(x, GetY(map.Map, x), map));
             }
             enemies[2] = new Enemy(map.Map.GetLength(0) - 2, map.Map.GetLength(1) - 2, map);
-            enemies[3] = new Enemy(1, 1, map);            
+            enemies[3] = new Enemy(1, 1, map);
             switch (enemyCount)
             {
                 case 2:
@@ -278,18 +272,14 @@ namespace HodimBrodim
 
     class Enemy
     {
-        private int _enemyX;
-        private int _enemyY;
-        private int _previousEnemyX;
-        private int _previousEnemyY;
+        private Point _position;
+        private Point _previousPosition;
         private GameMap _map;
         public Enemy(int enemyX, int enemyY, GameMap map)
         {
-            _enemyX = enemyX;
-            _enemyY = enemyY;
-            _previousEnemyX = enemyX;
-            _previousEnemyY = enemyY;
             _map = map;
+            _position = new Point(enemyX, enemyY);
+            _previousPosition = _position;
         }
         public void EnemyBehavior()
         {
@@ -298,47 +288,103 @@ namespace HodimBrodim
 
             while (rightPosition == false)
             {
-                _previousEnemyX = _enemyX;
-                _previousEnemyY = _enemyY;
+                _previousPosition = _position;
+                Point newPosition;
                 switch (rd.Next(1, 5))
                 {
                     case 1:
-                        if (_map.Map[_enemyX - 1, _enemyY] != '-' && _map.Map[_enemyX - 1, _enemyY] != '|')
+                        newPosition = new(_position.X - 1, _position.Y);
+                        if (_map[newPosition] != '-' && _map[newPosition] != '|')
                         {
-                            _enemyX--;
+                            _position = newPosition;
                             rightPosition = true;
                         }
                         break;
                     case 2:
-                        if (_map.Map[_enemyX + 1, _enemyY] != '-' & _map.Map[_enemyX + 1, _enemyY] != '|')
+                        newPosition = new(_position.X - 1, _position.Y);
+                        if (_map[newPosition] != '-' && _map[newPosition] != '|')
                         {
-                            _enemyX++;
+                            _position = newPosition;
                             rightPosition = true;
                         }
                         break;
                     case 3:
-                        if (_map.Map[_enemyX, _enemyY - 1] != '-' & _map.Map[_enemyX, _enemyY - 1] != '|')
+                        newPosition = new(_position.X, _position.Y - 1);
+                        if (_map[newPosition] != '-' && _map[newPosition] != '|')
                         {
-                            _enemyY--;
+                            _position = newPosition;
                             rightPosition = true;
                         }
                         break;
                     case 4:
-                        if (_map.Map[_enemyX, _enemyY + 1] != '-' & _map.Map[_enemyX, _enemyY + 1] != '|')
+                        newPosition = new(_position.X, _position.Y + 1);
+                        if (_map[newPosition] != '-' && _map[newPosition] != '|')
                         {
-                            _enemyY++;
+                            _position = newPosition;
                             rightPosition = true;
                         }
                         break;
                 }
             }
-            Console.SetCursorPosition(_enemyX, _enemyY);
+            Console.SetCursorPosition(_position.X, _position.Y);
+            Program.Paint('!', ConsoleColor.Red);
+        }
+
+        public void BfsMovement(Player player)
+        {
+            var start = _position;
+            var track = new Dictionary<Point, Point>();
+            var nullPoint = new Point(-1, -1);
+            track[start] = nullPoint;
+            var visited = new HashSet<Point>();
+            var queue = new Queue<Point>();
+            queue.Enqueue(start);
+            while (queue.Count != 0)
+            {
+                var point = queue.Dequeue();
+
+                if (visited.Contains(point))
+                    continue;
+                if (_map[point] == '|' || _map[point] == '-')
+                    continue;
+                if (point == player.Position)
+                    break;
+
+                var offsetPoints = new List<Point>
+                {
+                    new Point(-1, 0),
+                    new Point(1, 0),
+                    new Point(0, -1),
+                    new Point(0, 1),
+                };
+
+                foreach (var p in offsetPoints)
+                {
+                    var nextpoint = new Point(point.X + p.X, p.Y + point.Y);
+                    queue.Enqueue(nextpoint);
+                    if (!visited.Contains(nextpoint))
+                        track[nextpoint] = point;
+                }
+                visited.Add(point);
+            }
+            var pathItem = player.Position;
+            var result = new List<Point>();
+
+            while (pathItem != nullPoint)
+            {
+                result.Add(pathItem);
+                pathItem = track[pathItem];
+            }
+            result.Reverse();
+            _previousPosition = _position;
+            _position = result.Count > 1 ? result[1] : _previousPosition;
+
+            Console.SetCursorPosition(_position.X, _position.Y);
             Program.Paint('!', ConsoleColor.Red);
         }
         public bool CollisionWithEnemy(Player player)
         {
-            return player.Y == _enemyY & player.X == _enemyX ||
-                player.Y == _previousEnemyY & player.X == _previousEnemyX;
+            return player.Position == _position || player.Position == _previousPosition;
         }
     }
     class Fighter
@@ -527,7 +573,7 @@ namespace HodimBrodim
 
             command.CommandText = "select max(Id) from Reckord";
 
-            _maxID = command.ExecuteScalar() != null ? (int)command.ExecuteScalar() : 1;
+            _maxID = (int)(command.ExecuteScalar() ?? 1);
             connection.Close();
         }
 
@@ -571,7 +617,7 @@ namespace HodimBrodim
                 string nameOfPlayer = Console.ReadLine();
                 Initialize(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
             }
-           
+
             Console.WriteLine("Чтобы увидеть обновлённую таблицу нажмите 'R'");
             ConsoleKeyInfo pressedKey = Console.ReadKey();
             ShowRecordsTable(pressedKey);
@@ -606,11 +652,18 @@ namespace HodimBrodim
             string[] file = File.ReadAllLines(_pathToMap);
             char[,] map = new char[file[0].Length, file.Length];
             for (int x = 0; x < map.GetLength(0); x++)
-                for (int y = 0; y < map.GetLength(1); y++) 
-                    map[x, y] = file[y][x];  
+                for (int y = 0; y < map.GetLength(1); y++)
+                    map[x, y] = file[y][x];
             Map = map;
             CountTreasures();
         }
+
+        public char this[Point point]
+        {
+            get => Map[point.X, point.Y];
+            set => Map[point.X, point.Y] = value;
+        }
+
         public static void GetMapSize(int mapVariant)
         {
             MapID = mapVariant;
@@ -665,7 +718,7 @@ namespace HodimBrodim
                         Console.Write(Map[x, y]);
                         Console.ForegroundColor = color;
                         continue;
-                    }                  
+                    }
                     else if (Map[x, y] == '@')
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -695,9 +748,8 @@ namespace HodimBrodim
 
     class Player : Fighter
     {
-        public int X { get; private set; }
-        public int Y { get; private set; }
-        public bool PlayerIsDead{ get;  private set; }
+        public Point Position { get; private set; }
+        public bool PlayerIsDead { get; private set; }
         private List<Fighter> _fighters;
 
         public int TreasureCount { get; private set; }
@@ -710,9 +762,8 @@ namespace HodimBrodim
                 int randomEnemyY = rand.Next(0, map.Map.GetLength(1));
                 if (map.Map[randomEnemyX, randomEnemyY] == ' ')
                 {
-                    X = randomEnemyX;
-                    Y = randomEnemyY;
-                    map.Map[X, Y] = 'T';
+                    Position = new Point(randomEnemyX, randomEnemyY);
+                    map[Position] = 'T';
                     break;
                 }
             }
@@ -726,7 +777,7 @@ namespace HodimBrodim
                 new Fighter("Ноутбук ирбис", 1000f, 8, 3.5f,"легенда, если проиграет попадёт к вам на стол." +
                 "Вы точно хотите этого?")
             };
-            PlayerIsDead = false;    
+            PlayerIsDead = false;
         }
 
         public void AddTreasure()
@@ -736,13 +787,10 @@ namespace HodimBrodim
         public void Move(ConsoleKeyInfo pressedKey, char[,] map)
         {
             int[] direction = GetDirection(pressedKey);
-            int nextPositionX = X + direction[0];
-            int nextPositionY = Y + direction[1];
+            int nextPositionX = Position.X + direction[0];
+            int nextPositionY = Position.Y + direction[1];
             if (map[nextPositionX, nextPositionY] != '-' & map[nextPositionX, nextPositionY] != '|')
-            {
-                X = nextPositionX;
-                Y = nextPositionY;
-            }
+                Position = new(nextPositionX, nextPositionY);
         }
         private static int[] GetDirection(ConsoleKeyInfo pressedKey)
         {
@@ -820,8 +868,8 @@ namespace HodimBrodim
                 Thread.Sleep(150);
                 enemyFighter.TakeDamage(Damage);
                 this.TakeDamage(enemyFighter.Damage);
-                this.ShowRoundStatistic (enemyFighter.Damage);
-                enemyFighter.ShowRoundStatistic( Damage);
+                this.ShowRoundStatistic(enemyFighter.Damage);
+                enemyFighter.ShowRoundStatistic(Damage);
                 Console.WriteLine(new string('-', 70));
             }
             if (this.Health <= 0)
@@ -830,7 +878,7 @@ namespace HodimBrodim
                 Console.WriteLine("Вы проиграли");
             }
             else
-            {               
+            {
                 _fighters.Remove(enemyFighter);
                 Console.WriteLine("Вы победили этого противника, пока что...");
             }

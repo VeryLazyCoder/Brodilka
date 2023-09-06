@@ -27,7 +27,7 @@ namespace HodimBrodim
             GameMap map = new GameMap();
             var enemies = ChooseEnemyCount(map, playersChoice[1]);
             DrawBonusesForPlayer(map);
-            Player player = new Player(map);
+            Player player = new Player(map, GetPosition(map));
 
             Console.Clear();
             while (true)
@@ -243,28 +243,31 @@ namespace HodimBrodim
         }
         private static List<Enemy> ChooseEnemyCount(GameMap map, int enemyCount)
         {
-            Random random = new Random();
             List<Enemy> enemies = new List<Enemy>();
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < enemyCount; i++)
             {
-                int randx = random.Next(1, map.Map.GetLength(0));
-                int x = randx;
-                enemies.Add(new Enemy(x, GetY(map.Map, x), map));
-            }
-            enemies[2] = new Enemy(map.Map.GetLength(0) - 2, map.Map.GetLength(1) - 2, map);
-            enemies[3] = new Enemy(1, 1, map);
-            switch (enemyCount)
-            {
-                case 2:
-                    for (int i = 0; i < 4; i++)
-                        enemies.RemoveAt(2);
-                    break;
-                case 4:
-                    for (int i = 0; i < 2; i++)
-                        enemies.RemoveAt(4);
-                    break;
+                if (i == 2)
+                    enemies.Add(new(new(map.Map.GetLength(0) - 2, map.Map.GetLength(1) - 2), map));
+                else if (i == 3)
+                    enemies.Add(new(new(1, 1), map));
+                else
+                    enemies.Add(new(GetPosition(map), map));
             }
             return enemies;
+        }
+
+        public static Point GetPosition(GameMap map)
+        {
+            var rand = new Random();
+            var position = new Point();
+            while (true)
+            {
+                position = new(rand.Next(0, map.Map.GetLength(0)),
+                    rand.Next(0, map.Map.GetLength(1)));
+
+                if (map[position] == ' ')
+                    return position;
+            }
         }
     }
 
@@ -273,11 +276,11 @@ namespace HodimBrodim
         private Point _position;
         private Point _previousPosition;
         private GameMap _map;
-        public Enemy(int enemyX, int enemyY, GameMap map)
+        public Enemy(Point position, GameMap map)
         {
             _map = map;
-            _position = new Point(enemyX, enemyY);
-            _previousPosition = _position;
+            _position = position;
+            _previousPosition = position;
         }
         public void EnemyBehavior()
         {
@@ -382,6 +385,7 @@ namespace HodimBrodim
             Console.SetCursorPosition(_position.X, _position.Y);
             Program.Paint('!', ConsoleColor.Red);
         }
+
         public bool CollisionWithEnemy(Player player)
         {
             return player.Position == _position || player.Position == _previousPosition;
@@ -488,11 +492,10 @@ namespace HodimBrodim
                         bool rightPostion = false;
                         while (rightPostion == false)
                         {
-                            int x = randomChance.Next(0, map.Map.GetLength(0));
-                            int y = randomChance.Next(0, map.Map.GetLength(1));
-                            if (map.Map[x, y] == ' ')
+                            var position = Program.GetPosition(map);
+                            if (map[position] == ' ')
                             {
-                                map.Map[x, y] = 'X';
+                                map[position] = 'X';
                                 map.AddOneTreasure();
                                 rightPostion = true;
                             }
@@ -506,9 +509,7 @@ namespace HodimBrodim
                         player.FightWithEnemy();
                         break;
                     case 4:
-                        int RandommapX = randomChance.Next(0, map.Map.GetLength(0));
-                        int mapX = RandommapX;
-                        enemies.Add(new Enemy(mapX, Program.GetY(map.Map, mapX), map));
+                        enemies.Add(new(Program.GetPosition(map), map));
                         break;
                     case 5:
                         player.Health = player.Health / 10;
@@ -753,20 +754,12 @@ namespace HodimBrodim
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _fighters;
-        public Player(GameMap map) : base("игрок", 150, 2, 25, "Хороший вопрос")
+        public Player(GameMap map, Point position) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
             Random rand = new Random();
-            while (true)
-            {
-                int randomEnemyX = rand.Next(0, map.Map.GetLength(0));
-                int randomEnemyY = rand.Next(0, map.Map.GetLength(1));
-                if (map.Map[randomEnemyX, randomEnemyY] == ' ')
-                {
-                    Position = new Point(randomEnemyX, randomEnemyY);
-                    map[Position] = 'T';
-                    break;
-                }
-            }
+            Position = position;
+            map[Position] = 'T';
+
             _fighters = new List<Fighter>()
             {
                 new Fighter("Сумасшедший Маньяк", 200f + rand.Next(-20,21) ,
@@ -777,7 +770,6 @@ namespace HodimBrodim
                 new Fighter("Ноутбук ирбис", 1000f, 8, 3.5f,"легенда, если проиграет попадёт к вам на стол." +
                 "Вы точно хотите этого?")
             };
-            PlayerIsDead = false;
         }
 
         public void AddTreasure()
@@ -795,18 +787,18 @@ namespace HodimBrodim
         private static int[] GetDirection(ConsoleKeyInfo pressedKey)
         {
             int[] direction = { 0, 0 };
-            if (pressedKey.Key == ConsoleKey.W)           
+            if (pressedKey.Key == ConsoleKey.W)
                 direction[1]--;
-            
+
             else if (pressedKey.Key == ConsoleKey.S)
                 direction[1]++;
-            
-            else if (pressedKey.Key == ConsoleKey.A) 
+
+            else if (pressedKey.Key == ConsoleKey.A)
                 direction[0]--;
-            
+
             else if (pressedKey.Key == ConsoleKey.D)
                 direction[0]++;
-            
+
             else if (pressedKey.Key == ConsoleKey.Escape)
             {
                 Console.Clear();

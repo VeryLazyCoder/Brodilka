@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace HodimBrodim
 {
@@ -24,7 +23,6 @@ namespace HodimBrodim
         loop1:
             GameMap.GetMapSize(playersChoice[0]);
             PlayerInfo.Initialize(playersChoice[0]);
-            //PlayerInfo.AddRecords(playersChoice[0], 90);
             int startMoves = MovesAvailable;
             GameMap map = new GameMap();
             var enemies = ChooseEnemyCount(map, playersChoice[1]);
@@ -367,6 +365,8 @@ namespace HodimBrodim
                 }
                 visited.Add(point);
             }
+
+
             var pathItem = player.Position;
             var result = new List<Point>();
 
@@ -750,9 +750,9 @@ namespace HodimBrodim
     {
         public Point Position { get; private set; }
         public bool PlayerIsDead { get; private set; }
-        private List<Fighter> _fighters;
-
         public int TreasureCount { get; private set; }
+
+        private readonly List<Fighter> _fighters;
         public Player(GameMap map) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
             Random rand = new Random();
@@ -795,22 +795,18 @@ namespace HodimBrodim
         private static int[] GetDirection(ConsoleKeyInfo pressedKey)
         {
             int[] direction = { 0, 0 };
-            if (pressedKey.Key == ConsoleKey.W)
-            {
+            if (pressedKey.Key == ConsoleKey.W)           
                 direction[1]--;
-            }
+            
             else if (pressedKey.Key == ConsoleKey.S)
-            {
                 direction[1]++;
-            }
-            else if (pressedKey.Key == ConsoleKey.A)
-            {
+            
+            else if (pressedKey.Key == ConsoleKey.A) 
                 direction[0]--;
-            }
+            
             else if (pressedKey.Key == ConsoleKey.D)
-            {
                 direction[0]++;
-            }
+            
             else if (pressedKey.Key == ConsoleKey.Escape)
             {
                 Console.Clear();
@@ -863,18 +859,18 @@ namespace HodimBrodim
             enemyFighter.ShowFighterStats();
             Thread.Sleep(1500);
             Console.WriteLine("Битва началась");
-            while (this.Health > 0 & enemyFighter.Health > 0)
+            while (Health > 0 & enemyFighter.Health > 0)
             {
                 Thread.Sleep(150);
                 enemyFighter.TakeDamage(Damage);
-                this.TakeDamage(enemyFighter.Damage);
-                this.ShowRoundStatistic(enemyFighter.Damage);
+                TakeDamage(enemyFighter.Damage);
+                ShowRoundStatistic(enemyFighter.Damage);
                 enemyFighter.ShowRoundStatistic(Damage);
                 Console.WriteLine(new string('-', 70));
             }
-            if (this.Health <= 0)
+            if (Health <= 0)
             {
-                this.PlayerIsDead = true;
+                PlayerIsDead = true;
                 Console.WriteLine("Вы проиграли");
             }
             else

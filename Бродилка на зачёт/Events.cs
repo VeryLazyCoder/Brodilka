@@ -17,7 +17,6 @@ namespace HodimBrodim
             new RandomEvents("К вам в руки попала новая карта лабиринта","на ней обнаружилось новое сокровище"),
             new RandomEvents("Вы нашли ковёр самолёт"," у вас стало больше времени. " +
                 "Получите 5 ходов"),
-            new RandomEvents("На вас напали конкуренты","придётся с ними сразиться"),
             new RandomEvents("Вы протёрли свои очки и увидели нового врага","придётся перемещаться осторожнее :)"),
             new RandomEvents("Вы нашли подозрительную синюю таблетку с лекарством",
                 "Приняв её вы выяснили, что здоровье увеличилось"),
@@ -26,8 +25,11 @@ namespace HodimBrodim
             new RandomEvents("Мы решили вас похвалить","Прочитайте комплимент в ваш адрес :)")
         };
         public static void RandomEvent(GameMap map, Player player,
-            List<IEnemy> enemies)
+            List<IEnemy> enemies, bool flag = false)
         {
+            if (flag)
+                return;
+            
             Random randomChance = new Random();
             int randomEventNumber = randomChance.Next(0, _events.Count);
 
@@ -43,10 +45,10 @@ namespace HodimBrodim
                 Thread.Sleep(250);
                 switch (randomEventNumber)
                 {
-                    case 0: // налоговая, - 5 ходов
+                    case 0:
                         Program.MovesAvailable -= 5;
                         break;
-                    case 1: // новое сокровище
+                    case 1:
                         bool rightPostion = false;
                         while (rightPostion == false)
                         {
@@ -63,19 +65,15 @@ namespace HodimBrodim
                         Program.MovesAvailable += 5;
                         break;
                     case 3:
-                        Thread.Sleep(1000);
-                        player.FightWithEnemy();
-                        break;
-                    case 4:
                         enemies.Add(new CommomEnemy(Program.GetPosition(map), map));
                         break;
-                    case 5:
+                    case 4:
                         player.Health = player.Health / 10;
                         break;
-                    case 6:
+                    case 5:
                         player.Health = -15;
                         break;
-                    case 7:
+                    case 6:
                         string[] compliments = { "Вы лучший",
                          "Вы очаровательны сегодня и весьма умны. Продолжайте играть, но не принимайте все всерьез.\n" +
                          "Помните, что это всего лишь игра.", "Вы пышите здоровьем и ваша броня крепка." +

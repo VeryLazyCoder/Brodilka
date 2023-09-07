@@ -23,9 +23,9 @@ namespace HodimBrodim
             GameMap map = new GameMap();
             var enemies = ChooseEnemyCount(map, playersChoice[1]);
             DrawBonusesForPlayer(map);
-            Player player = new Player(map, GetPosition(map));
-
+            var player = new Player(map, GetPosition(map));
             Console.Clear();
+
             while (true)
             {
                 player.ShowPlayerStatistic();
@@ -92,7 +92,7 @@ namespace HodimBrodim
             Console.WriteLine($"Вы победиди за {startMoves - MovesAvailable} ходов, поздравляю!!!");
             Console.WriteLine("Хотите улучшить результат? да/нет");
             string answer = Console.ReadLine();
-            if (answer == "да" | answer == "if" | answer == "lf" | answer == "fl" | answer == "ад")
+            if (answer == "да" || answer == "if" || answer == "lf" || answer == "fl" || answer == "ад")
             {
                 Console.Clear();
                 goto loop1;

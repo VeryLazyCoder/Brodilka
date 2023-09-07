@@ -36,7 +36,6 @@ namespace HodimBrodim
             playerInfo = new List<PlayerInfo>();
             while (reader.Read())
             {
-                // Получение данных из результата запроса
                 string name = (string)reader["Nickname"];
                 int score = (int)reader["Score"];
                 DateTime date = (DateTime)reader["ScoreDate"];
@@ -50,7 +49,7 @@ namespace HodimBrodim
             connection.Close();
         }
 
-        private static void Initialize(int mapID, PlayerInfo newRow)
+        private static void UpdateBase(int mapID, PlayerInfo newRow)
         {
             using SqlConnection connection = new(connectionString);
             connection.Open();
@@ -67,7 +66,6 @@ namespace HodimBrodim
             playerInfo = new List<PlayerInfo>();
             while (reader.Read())
             {
-                // Получение данных из результата запроса
                 string name = (string)reader["Nickname"];
                 int score = (int)reader["Score"];
                 DateTime date = (DateTime)reader["ScoreDate"];
@@ -88,7 +86,7 @@ namespace HodimBrodim
             {
                 Console.Write("Введите ваше имя ");
                 string nameOfPlayer = Console.ReadLine();
-                Initialize(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
+                UpdateBase(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
             }
 
             Console.WriteLine("Чтобы увидеть обновлённую таблицу нажмите 'R'");

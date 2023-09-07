@@ -13,7 +13,6 @@ namespace HodimBrodim
         {
             Random rand = new Random();
             Position = position;
-            map[Position] = 'T';
 
             _fighters = new List<Fighter>()
             {

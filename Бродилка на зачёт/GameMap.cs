@@ -93,8 +93,6 @@ namespace HodimBrodim
                         Console.ForegroundColor = color;
                         continue;
                     }
-                    else if (Map[x, y] == 'T')
-                        Map[x, y] = ' ';
                     Console.Write(Map[x, y]);
                 }
                 Console.WriteLine();

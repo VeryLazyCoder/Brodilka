@@ -12,13 +12,8 @@ namespace HodimBrodim
         public static int MovesAvailable = 300;
         static void Main()
         {
-            bool showresult = false;
-            int previousResult = 0;
-            bool ifWin = false;
-            bool everWin = false;
-            int maxWinResult = int.MaxValue;
-            int maxLoseResult = 0;
             var playersChoice = RecieveFromPlayerGameParametres();
+            
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
         loop1:
@@ -33,27 +28,6 @@ namespace HodimBrodim
             Console.Clear();
             while (true)
             {
-                if (showresult == true)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    if (ifWin == true)
-                    {
-                        Console.SetCursorPosition(40, 16);
-                        Console.WriteLine($"Ваш предудущий результат {previousResult} ходов");
-                        Console.SetCursorPosition(40, 17);
-                        Console.WriteLine($"Ваш лучший результат {maxWinResult} ходов");
-                    }
-                    else
-                    {
-                        Console.SetCursorPosition(40, 16);
-                        Console.WriteLine($"Ваш предудущий результат {previousResult} собранных сокровищ");
-                        Console.SetCursorPosition(40, 17);
-                        if (maxLoseResult > map.TreasuresOnTheMap)
-                            Console.WriteLine($"Ваш лучший результат {maxLoseResult} ходов");
-                        else
-                            Console.WriteLine($"Ваш лучший результат {maxLoseResult} собранных сокровищ");
-                    }
-                }
                 player.ShowPlayerStatistic();
                 map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
                 for (int i = 0; i < enemies.Count; i++)
@@ -77,7 +51,6 @@ namespace HodimBrodim
                 }
                 if (map[player.Position] == '@')
                     MovesAvailable -= 10;
-
                 if (map[player.Position] == 'D')
                 {
                     player.Damage = player.Damage / 4;
@@ -102,26 +75,11 @@ namespace HodimBrodim
 
                     Console.WriteLine("Хотите улучшить результат? да/нет");
                     string userInput = Console.ReadLine();
-                    showresult = true;
+                    
                     if (userInput == "да" || userInput == "if" || userInput == "lf" ||
-                        userInput == "fl" || userInput == "ад")
-                    {
-                        Console.Clear();
-                        previousResult = player.TreasureCount;
-                        ifWin = false;
-                        switch (everWin)
-                        {
-                            case true:
-                                maxLoseResult = maxWinResult;
-                                break;
-                            case false:
-                                if (previousResult >= maxLoseResult)
-                                    maxLoseResult = previousResult;
-                                break;
-                        }
+                        userInput == "fl" || userInput == "ад")      
                         goto loop1;
-                    }
-                    ShowFinalResult(everWin, maxWinResult, player);
+                    
                     Environment.Exit(0);
                 }
                 Console.SetCursorPosition(player.Position.X, player.Position.Y);
@@ -132,12 +90,6 @@ namespace HodimBrodim
             }
             Console.Clear();
             Console.WriteLine($"Вы победиди за {startMoves - MovesAvailable} ходов, поздравляю!!!");
-            everWin = true;
-            previousResult = startMoves - MovesAvailable;
-            showresult = true;
-            ifWin = true;
-            if (previousResult <= maxWinResult)
-                maxWinResult = previousResult;
             Console.WriteLine("Хотите улучшить результат? да/нет");
             string answer = Console.ReadLine();
             if (answer == "да" | answer == "if" | answer == "lf" | answer == "fl" | answer == "ад")
@@ -145,20 +97,8 @@ namespace HodimBrodim
                 Console.Clear();
                 goto loop1;
             }
-            ShowFinalResult(everWin, maxWinResult, player);
         }
 
-        private static void ShowFinalResult(bool everWin, int maxWinResult, Player player)
-        {
-            if (everWin == true)
-            {
-                Console.WriteLine($" Ваш лучший результат составил {maxWinResult} ходов(а)");
-                PlayerInfo.AddRecords(GameMap.MapID, maxWinResult);
-            }
-            else
-                Console.WriteLine(" Ваш лучший результат составил " + player.TreasureCount + " сокровищ(а)");
-            Console.ReadKey();
-        }
         private static void DrawBonusesForPlayer(GameMap map)
         {
             map.DrawSymbolOnEmptyCell('A');
@@ -202,19 +142,6 @@ namespace HodimBrodim
             Paint("Случилось страшное!? Вращайте барабан", ConsoleColor.Blue);
             Console.WriteLine("\n\nЕсли вы готовы, нажмите любую кнопку и вперёд!");
             Console.ReadKey();
-        }
-        public static int GetY(char[,] map, int mapX)
-        {
-            bool correctY = false;
-            int y = 1;
-            while (correctY == false)
-            {
-                Random rand = new Random();
-                y = rand.Next(0, map.GetLength(1));
-                if (map[mapX, y] != '-' & map[mapX, y] != '|' & map[mapX, y] != 'T')
-                    correctY = true;
-            }
-            return y;
         }
         public static int[] RecieveFromPlayerGameParametres()
         {

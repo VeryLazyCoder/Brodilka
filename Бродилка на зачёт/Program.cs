@@ -41,7 +41,8 @@ namespace HodimBrodim
                         break;
                     }
                 }
-                RandomEvents.RandomEvent(map, player, enemies);
+                RandomEvents.InvokeEvent(map, player, enemies);
+
                 if (map[player.Position] == 'X')
                 {
                     player.AddTreasure();
@@ -84,6 +85,7 @@ namespace HodimBrodim
                 }
                 Console.SetCursorPosition(player.Position.X, player.Position.Y);
                 Paint('T', ConsoleColor.Green);
+                DisplayEnemies(enemies);
                 ConsoleKeyInfo pressedKey = Console.ReadKey();
                 PlayerInfo.ShowRecordsTable(pressedKey);
                 player.Move(pressedKey, map.Map);
@@ -97,6 +99,12 @@ namespace HodimBrodim
                 Console.Clear();
                 goto loop1;
             }
+        }
+
+        private static void DisplayEnemies(List<IEnemy> enemies)
+        {
+            foreach (var enemy in enemies)
+                enemy.Display();
         }
 
         private static void DrawBonusesForPlayer(GameMap map)
@@ -194,10 +202,9 @@ namespace HodimBrodim
         public static Point GetPosition(GameMap map)
         {
             var rand = new Random();
-            var position = new Point();
             while (true)
             {
-                position = new(rand.Next(0, map.Map.GetLength(0)),
+                var position = new Point(rand.Next(0, map.Map.GetLength(0)),
                     rand.Next(0, map.Map.GetLength(1)));
 
                 if (map[position] == ' ')

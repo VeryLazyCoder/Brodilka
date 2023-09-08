@@ -66,13 +66,17 @@ namespace HodimBrodim
                         break;
                 }
             }
-            Console.SetCursorPosition(_position.X, _position.Y);
-            Program.Paint('!', ConsoleColor.Red);
         }
 
         public bool CollisionWithPlayer(Point playerPosition)
         {
             return playerPosition == _position || playerPosition == _previousPosition;
+        }
+
+        public void Display()
+        {
+            Console.SetCursorPosition(_position.X, _position.Y);
+            Program.Paint('!', ConsoleColor.Red);
         }
     }
 }

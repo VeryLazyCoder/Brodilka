@@ -24,71 +24,76 @@ namespace HodimBrodim
                 "Выпив её ваше здоровье почему-то уменьшилось"),
             new RandomEvents("Мы решили вас похвалить","Прочитайте комплимент в ваш адрес :)")
         };
-        public static void RandomEvent(GameMap map, Player player,
+        public static bool InvokeEvent(GameMap map, Player player,
             List<IEnemy> enemies, bool flag = false)
         {
             if (flag)
-                return;
+                return false;
             
-            Random randomChance = new Random();
-            int randomEventNumber = randomChance.Next(0, _events.Count);
-
-            if (randomChance.Next(0, 25) == 12)
+            if (new Random().Next(25) == 22)
             {
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine("Случилось страшное!? вращайте барабан...");
-                Console.ReadKey();
-                Console.SetCursorPosition(0, 1);
-                Console.WriteLine($"{_events[randomEventNumber]._nameOfEvent}. " +
-                    $"В итоге {_events[randomEventNumber]._description}");
-                Thread.Sleep(250);
-                switch (randomEventNumber)
-                {
-                    case 0:
-                        Program.MovesAvailable -= 5;
-                        break;
-                    case 1:
-                        bool rightPostion = false;
-                        while (rightPostion == false)
+                ProcessEvent(map, player, enemies);
+                return true;
+            }
+            return false;
+        }
+
+        private static void ProcessEvent(GameMap map, Player player, List<IEnemy> enemies)
+        {
+            int randomEventNumber = new Random().Next(_events.Count);
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("Случилось страшное!? вращайте барабан...");
+            Console.ReadKey();
+            Console.SetCursorPosition(0, 1);
+            Console.WriteLine($"{_events[randomEventNumber]._nameOfEvent}. " +
+                $"В итоге {_events[randomEventNumber]._description}");
+            Thread.Sleep(250);
+            switch (randomEventNumber)
+            {
+                case 0:
+                    Program.MovesAvailable -= 5;
+                    break;
+                case 1:
+                    bool rightPostion = false;
+                    while (rightPostion == false)
+                    {
+                        var position = Program.GetPosition(map);
+                        if (map[position] == ' ')
                         {
-                            var position = Program.GetPosition(map);
-                            if (map[position] == ' ')
-                            {
-                                map[position] = 'X';
-                                map.AddOneTreasure();
-                                rightPostion = true;
-                            }
+                            map[position] = 'X';
+                            map.AddOneTreasure();
+                            rightPostion = true;
                         }
-                        break;
-                    case 2:
-                        Program.MovesAvailable += 5;
-                        break;
-                    case 3:
-                        enemies.Add(new CommomEnemy(Program.GetPosition(map), map));
-                        break;
-                    case 4:
-                        player.Health = player.Health / 10;
-                        break;
-                    case 5:
-                        player.Health = -15;
-                        break;
-                    case 6:
-                        string[] compliments = { "Вы лучший",
+                    }
+                    break;
+                case 2:
+                    Program.MovesAvailable += 5;
+                    break;
+                case 3:
+                    enemies.Add(new CommomEnemy(Program.GetPosition(map), map));
+                    break;
+                case 4:
+                    player.Health = player.Health / 10;
+                    break;
+                case 5:
+                    player.Health = -15;
+                    break;
+                case 6:
+                    string[] compliments = { "Вы лучший",
                          "Вы очаровательны сегодня и весьма умны. Продолжайте играть, но не принимайте все всерьез.\n" +
                          "Помните, что это всего лишь игра.", "Вы пышите здоровьем и ваша броня крепка." +
                          " Продолжайте в том же духе.\n" +"Игра - ваша тема!",
                             "Сударь! А может быть, сударыня! Вы умны и здоровы, а можете стать богатым. " +
                             "\nПродолжайте собирать сокровища. Мы вас любим."
                             , "Вперёд, вам по силам пройти эту игру!!!" };
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        Console.WriteLine(compliments[randomChance.Next(0, compliments.Length)]);
-                        break;
-                }
-                Console.ReadKey();
-                Console.Clear();
-                map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine(compliments[new Random().Next(compliments.Length)]);
+                    break;
             }
+            Console.ReadKey();
+            Console.Clear();
+            map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
         }
     }
 }

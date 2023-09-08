@@ -60,7 +60,6 @@ namespace HodimBrodim
                 visited.Add(point);
             }
 
-
             var pathItem = playerPosition;
             var result = new List<Point>();
 
@@ -73,6 +72,11 @@ namespace HodimBrodim
             _previousPosition = _position;
             _position = result.Count > 1 ? result[1] : _previousPosition;
 
+            Display();
+        }
+
+        public void Display()
+        {
             Console.SetCursorPosition(_position.X, _position.Y);
             Program.Paint('!', ConsoleColor.Red);
         }

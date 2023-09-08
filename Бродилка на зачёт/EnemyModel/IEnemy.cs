@@ -15,5 +15,7 @@ namespace HodimBrodim
         public void Move(Point playerPosition);
 
         public bool CollisionWithPlayer(Point playerPosition);
+
+        public void Display();
     }
 }

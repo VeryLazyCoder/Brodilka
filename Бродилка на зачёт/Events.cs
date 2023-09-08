@@ -30,7 +30,7 @@ namespace HodimBrodim
             if (flag)
                 return false;
             
-            if (new Random().Next(25) == 22)
+            if (new Random().Next(35) == 22)
             {
                 ProcessEvent(map, player, enemies);
                 return true;

@@ -12,8 +12,7 @@ namespace HodimBrodim
         public static int MovesAvailable = 300;
         static void Main()
         {
-            var playersChoice = RecieveFromPlayerGameParametres();
-            
+            var playersChoice = RecieveFromPlayerGameParametres();           
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
         loop1:
@@ -54,7 +53,7 @@ namespace HodimBrodim
                     MovesAvailable -= 10;
                 if (map[player.Position] == 'D')
                 {
-                    player.Damage = player.Damage / 4;
+                    player.Damage /= 4;
                     map[player.Position] = ' ';
                 }
                 if (map[player.Position] == 'A')
@@ -64,7 +63,7 @@ namespace HodimBrodim
                 }
                 if (map[player.Position] == 'H')
                 {
-                    player.Health = player.Health / 4;
+                    player.Health /= 4;
                     map[player.Position] = ' ';
                 }
                 if (player.TreasureCount == map.TreasuresOnTheMap || enemies.Count == 0)
@@ -194,7 +193,7 @@ namespace HodimBrodim
         private static IEnemy GetEnemy(Point point, GameMap map)
         {
             var random = new Random();
-            if (random.Next(0, 2) == 0)
+            if (random.Next(3) == 0)
                 return new SmartEnemy(point, map);
             else
                 return new CommomEnemy(point, map);

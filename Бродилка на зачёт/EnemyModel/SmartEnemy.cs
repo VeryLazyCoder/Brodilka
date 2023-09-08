@@ -12,7 +12,15 @@ namespace HodimBrodim
     {
         private Point _position;
         private Point _previousPosition;
-        private GameMap _map;
+        private readonly GameMap _map;
+        private readonly List<Point> offsetPoints = new List<Point>
+                {
+                    new Point(-1, 0),
+                    new Point(1, 0),
+                    new Point(0, -1),
+                    new Point(0, 1),
+                };
+
         public Point Position => _position;
         public Point PreviousPosition => _previousPosition;
 
@@ -42,14 +50,6 @@ namespace HodimBrodim
                 if (point == playerPosition)
                     break;
 
-                var offsetPoints = new List<Point>
-                {
-                    new Point(-1, 0),
-                    new Point(1, 0),
-                    new Point(0, -1),
-                    new Point(0, 1),
-                };
-
                 foreach (var p in offsetPoints)
                 {
                     var nextpoint = new Point(point.X + p.X, p.Y + point.Y);
@@ -71,8 +71,6 @@ namespace HodimBrodim
             result.Reverse();
             _previousPosition = _position;
             _position = result.Count > 1 ? result[1] : _previousPosition;
-
-            Display();
         }
 
         public void Display()

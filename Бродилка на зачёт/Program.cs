@@ -4,15 +4,14 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 
-
 namespace HodimBrodim
 {
-    class Program
+    public class Program
     {
         public static int MovesAvailable = 300;
-        static void Main()
+        static void Main(string[] args)
         {
-            var playersChoice = RecieveFromPlayerGameParametres();           
+            var playersChoice = RecieveFromPlayerGameParametres(); 
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
         loop1:
@@ -20,7 +19,7 @@ namespace HodimBrodim
             PlayerInfo.Initialize(playersChoice[0]);
             int startMoves = MovesAvailable;
             GameMap map = new GameMap();
-            var enemies = ChooseEnemyCount(map, playersChoice[1]);
+            var enemies = GetEnemies(map, playersChoice[1]);
             DrawBonusesForPlayer(map);
             var player = new Player(map, GetPosition(map));
             Console.Clear();
@@ -100,13 +99,13 @@ namespace HodimBrodim
             }
         }
 
-        private static void DisplayEnemies(List<IEnemy> enemies)
+        public static void DisplayEnemies(List<IEnemy> enemies)
         {
             foreach (var enemy in enemies)
                 enemy.Display();
         }
 
-        private static void DrawBonusesForPlayer(GameMap map)
+        public static void DrawBonusesForPlayer(GameMap map)
         {
             map.DrawSymbolOnEmptyCell('A');
             map.DrawSymbolOnEmptyCell('D');
@@ -119,14 +118,14 @@ namespace HodimBrodim
             Console.Write(symbol);
             Console.ForegroundColor = defaultcolor;
         }
-        private static void Paint(string stringToWrite, ConsoleColor color)
+        public static void Paint(string stringToWrite, ConsoleColor color)
         {
             ConsoleColor defaultcolor = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.Write(stringToWrite);
             Console.ForegroundColor = defaultcolor;
         }
-        private static void GiveAdviceToPlayer()
+        public static void GiveAdviceToPlayer()
         {
             Console.Clear();
             Console.WriteLine("Краткая справка:\n");
@@ -176,7 +175,7 @@ namespace HodimBrodim
                 }
             }
         }
-        private static List<IEnemy> ChooseEnemyCount(GameMap map, int enemyCount)
+        public static List<IEnemy> GetEnemies(GameMap map, int enemyCount)
         {
             var enemies = new List<IEnemy>();
             for (int i = 0; i < enemyCount; i++)
@@ -190,7 +189,7 @@ namespace HodimBrodim
             }
             return enemies;
         }
-        private static IEnemy GetEnemy(Point point, GameMap map)
+        public static IEnemy GetEnemy(Point point, GameMap map)
         {
             var random = new Random();
             if (random.Next(3) == 0)

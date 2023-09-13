@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ООП бродилка с 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zродилка", "Zродилка\Zродилка.csproj", "{FDE8C648-121A-4BBB-9FB6-86DB66F69866}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Бродилка на зачёт", "Бродилка на зачёт\Бродилка на зачёт.csproj", "{AAD671BE-4841-4AF7-90EB-80162B3F803B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Бродилка на зачёт", "Бродилка на зачёт\Бродилка на зачёт.csproj", "{AAD671BE-4841-4AF7-90EB-80162B3F803B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrolilkaShould", "BrolilkaShould\BrolilkaShould.csproj", "{847C2F92-7DA6-4266-A985-D1C6BD8E722A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{AAD671BE-4841-4AF7-90EB-80162B3F803B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAD671BE-4841-4AF7-90EB-80162B3F803B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAD671BE-4841-4AF7-90EB-80162B3F803B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

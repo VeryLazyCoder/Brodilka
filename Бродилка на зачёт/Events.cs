@@ -52,7 +52,7 @@ namespace HodimBrodim
             switch (randomEventNumber)
             {
                 case 0:
-                    Program.MovesAvailable -= 5;
+                    player.MovesAvailable -= 5;
                     break;
                 case 1:
                     bool rightPostion = false;
@@ -68,7 +68,7 @@ namespace HodimBrodim
                     }
                     break;
                 case 2:
-                    Program.MovesAvailable += 5;
+                    player.MovesAvailable += 5;
                     break;
                 case 3:
                     enemies.Add(new CommomEnemy(Program.GetPosition(map), map));

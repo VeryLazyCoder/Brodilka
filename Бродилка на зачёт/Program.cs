@@ -8,26 +8,31 @@ namespace HodimBrodim
 {
     public class Program
     {
-        public static int MovesAvailable = 300;
+        private static int _startMoves;
         static void Main(string[] args)
         {
-            var playersChoice = RecieveFromPlayerGameParametres(); 
+            var playersChoice = RecieveFromPlayerGameParametres();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
         loop1:
-            GameMap.GetMapSize(playersChoice[0]);
+            _startMoves = GameMap.GetMapSize(playersChoice[0]);
             PlayerInfo.Initialize(playersChoice[0]);
-            int startMoves = MovesAvailable;
             GameMap map = new GameMap();
             var enemies = GetEnemies(map, playersChoice[1]);
             DrawBonusesForPlayer(map);
-            var player = new Player(map, GetPosition(map));
+            var player = new Player(map, GetPosition(map), _startMoves);
             Console.Clear();
 
             while (true)
             {
                 player.ShowPlayerStatistic();
                 map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+                Console.SetCursorPosition(player.Position.X, player.Position.Y);
+                Paint('T', ConsoleColor.Green);
+                DisplayEnemies(enemies);
+                ConsoleKeyInfo pressedKey = Console.ReadKey();
+                PlayerInfo.ShowRecordsTable(pressedKey);
+                player.Move(pressedKey, map.Map);
                 for (int i = 0; i < enemies.Count; i++)
                 {
                     enemies[i].Move(player.Position);
@@ -49,7 +54,7 @@ namespace HodimBrodim
                     player.Damage /= 10;
                 }
                 if (map[player.Position] == '@')
-                    MovesAvailable -= 10;
+                    player.MovesAvailable -= 10;
                 if (map[player.Position] == 'D')
                 {
                     player.Damage /= 4;
@@ -65,9 +70,10 @@ namespace HodimBrodim
                     player.Health /= 4;
                     map[player.Position] = ' ';
                 }
-                if (player.TreasureCount == map.TreasuresOnTheMap || enemies.Count == 0)
+                if (player.TreasureCount == map.TreasuresOnTheMap || 
+                    (enemies.Count == 0 && playersChoice[1] != 0))
                     break;
-                if (MovesAvailable <= 0 || player.PlayerIsDead == true)
+                if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
                 {
                     Console.Clear();
                     Console.WriteLine("Вы не справились :( Игра окончена");
@@ -80,16 +86,11 @@ namespace HodimBrodim
                         goto loop1;
                     
                     Environment.Exit(0);
-                }
-                Console.SetCursorPosition(player.Position.X, player.Position.Y);
-                Paint('T', ConsoleColor.Green);
-                DisplayEnemies(enemies);
-                ConsoleKeyInfo pressedKey = Console.ReadKey();
-                PlayerInfo.ShowRecordsTable(pressedKey);
-                player.Move(pressedKey, map.Map);
+                }                
             }
             Console.Clear();
-            Console.WriteLine($"Вы победиди за {startMoves - MovesAvailable} ходов, поздравляю!!!");
+            Console.WriteLine($"Вы победиди за {_startMoves - player.MovesAvailable} ходов, поздравляю!!!");
+            PlayerInfo.AddRecords(playersChoice[0], _startMoves - player.MovesAvailable);
             Console.WriteLine("Хотите улучшить результат? да/нет");
             string answer = Console.ReadLine();
             if (answer == "да" || answer == "if" || answer == "lf" || answer == "fl" || answer == "ад")
@@ -178,6 +179,9 @@ namespace HodimBrodim
         public static List<IEnemy> GetEnemies(GameMap map, int enemyCount)
         {
             var enemies = new List<IEnemy>();
+            //if (enemyCount <= 0 || enemyCount >= 10)
+            //    throw new ArgumentOutOfRangeException(nameof(enemyCount));
+
             for (int i = 0; i < enemyCount; i++)
             {
                 if (i == 2)

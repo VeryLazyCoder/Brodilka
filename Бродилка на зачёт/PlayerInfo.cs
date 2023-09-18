@@ -59,19 +59,8 @@ namespace HodimBrodim
             using SqlCommand insertCommand = new(insertQuery, connection);
             insertCommand.ExecuteNonQuery();
 
-            string sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
-            using SqlCommand command = new(sqlQuery, connection);
-            SqlDataReader reader = command.ExecuteReader();
-
-            playerInfo = new List<PlayerInfo>();
-            while (reader.Read())
-            {
-                string name = (string)reader["Nickname"];
-                int score = (int)reader["Score"];
-                DateTime date = (DateTime)reader["ScoreDate"];
-                playerInfo.Add(new PlayerInfo(name, score, date));
-            }
-            reader.Close();
+            playerInfo.Add(newRow);          
+            playerInfo = playerInfo.OrderBy(x => x._score).ToList();
 
             _maxID++;
             connection.Close();
@@ -102,11 +91,10 @@ namespace HodimBrodim
                 Console.WriteLine("Таблица рекордов\n");
 
                 foreach (var player in playerInfo)
-                    Console.WriteLine($"Игрок {player._name} победил за {player._score} ходов. Рекорд был установлен " +
-                        $"{player._date}");
+                    Console.WriteLine($"Игрок {player._name} победил за {player._score} ходов." +
+                        $" Рекорд был установлен {player._date}");
 
                 Console.ReadKey();
-                Program.MovesAvailable++;
                 Console.Clear();
             }
         }

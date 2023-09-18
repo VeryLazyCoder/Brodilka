@@ -31,24 +31,21 @@ namespace HodimBrodim
             set => Map[point.X, point.Y] = value;
         }
 
-        public static void GetMapSize(int mapVariant)
+        public static int GetMapSize(int mapVariant)
         {
             MapID = mapVariant;
             switch (MapID)
             {
                 case 1:
                     _pathToMap = "little.txt";
-                    Program.MovesAvailable = 120;
-                    break;
+                    return 120;
                 case 2:
                     _pathToMap = "qwerty.txt";
-                    Program.MovesAvailable = 160;
-                    break;
+                    return 160;
                 default:
                     _pathToMap = "bigmap.txt";
-                    break;
+                    return 300;
             }
-            Program.MovesAvailable++;
         }
         public void DrawSymbolOnEmptyCell(char symbol)
         {

@@ -5,14 +5,16 @@ namespace HodimBrodim
     public class Player : Fighter
     {
         public Point Position { get; private set; }
+        public int MovesAvailable { get; set; }
         public bool PlayerIsDead { get; private set; }
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _fighters;
-        public Player(GameMap map, Point position) : base("игрок", 150, 2, 25, "Хороший вопрос")
+        public Player(GameMap map, Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
             Random rand = new Random();
             Position = position;
+            MovesAvailable = moves;
 
             _fighters = new List<Fighter>()
             {
@@ -37,6 +39,8 @@ namespace HodimBrodim
             int nextPositionY = Position.Y + direction[1];
             if (map[nextPositionX, nextPositionY] != '-' & map[nextPositionX, nextPositionY] != '|')
                 Position = new(nextPositionX, nextPositionY);
+            if (direction[0] != 0 || direction[1] != 0)
+                MovesAvailable--;
         }
         private static int[] GetDirection(ConsoleKeyInfo pressedKey)
         {
@@ -74,7 +78,7 @@ namespace HodimBrodim
             Console.WriteLine($"Ваша броня  {Armor}");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.SetCursorPosition(0, 21);
-            Console.WriteLine($"Осталось ходов: {--Program.MovesAvailable} ");
+            Console.WriteLine($"Осталось ходов: {MovesAvailable} ");
             Console.WriteLine($"Счётчик сокровищ: {TreasureCount}");
         }
         public void FightWithEnemy()

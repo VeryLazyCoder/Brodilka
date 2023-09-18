@@ -1,7 +1,4 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace HodimBrodim
@@ -36,71 +33,29 @@ namespace HodimBrodim
             ['@'] = (player, map) => player.MovesAvailable -= 10,
             [' '] = (player, map) => { },
         };
+        private static int[] _playersChoice;
+        private static string[] _agreement = { "да", "lf", "fl", "ад", };
         static void Main(string[] args)
         {
-            var playersChoice = RecieveFromPlayerGameParametres();
+            _playersChoice = RecieveFromPlayerGameParametres();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
-        loop1:
-            _startMoves = GameMap.GetMapSize(playersChoice[0]);
-            PlayerInfo.Initialize(playersChoice[0]);
-            GameMap map = new GameMap();
-            var enemies = GetEnemies(map, playersChoice[1]);
-            var player = new Player(map, GetPosition(map), _startMoves);
-            Console.Clear();
-
-            while (true)
+            bool wannaPlay = true;
+            
+            while (wannaPlay)
             {
-                player.ShowPlayerStatistic();
-                map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-                Console.SetCursorPosition(player.Position.X, player.Position.Y);
-                Paint('T', ConsoleColor.Green);
-                DisplayEnemies(enemies);
-                ConsoleKeyInfo pressedKey = Console.ReadKey();
-                PlayerInfo.ShowRecordsTable(pressedKey);
-                player.Move(pressedKey, map.Map);
-                for (int i = 0; i < enemies.Count; i++)
-                {
-                    enemies[i].Move(player.Position);
-                    if (enemies[i].CollisionWithPlayer(player.Position))
-                    {
-                        player.FightWithEnemy();
-                        enemies.RemoveAt(i);
-                        map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-                        break;
-                    }
-                }
-                RandomEvents.InvokeEvent(map, player, enemies);
-                _actionsOnCollision[map[player.Position]].Invoke(player, map);
-               
-                if (player.TreasureCount == map.TreasuresOnTheMap ||
-                    (enemies.Count == 0 && playersChoice[1] != 0))
-                    break;
-                if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Вы не справились :( Игра окончена");
-
-                    Console.WriteLine("Хотите улучшить результат? да/нет");
-                    string userInput = Console.ReadLine();
-
-                    if (userInput == "да" || userInput == "if" || userInput == "lf" ||
-                        userInput == "fl" || userInput == "ад")
-                        goto loop1;
-
-                    Environment.Exit(0);
-                }
-            }
-            Console.Clear();
-            Console.WriteLine($"Вы победиди за {_startMoves - player.MovesAvailable} ходов, поздравляю!!!");
-            PlayerInfo.AddRecords(playersChoice[0], _startMoves - player.MovesAvailable);
-            Console.WriteLine("Хотите улучшить результат? да/нет");
-            string answer = Console.ReadLine();
-            if (answer == "да" || answer == "if" || answer == "lf" || answer == "fl" || answer == "ад")
-            {
+                var userScore = StartGame(out bool isWin);
                 Console.Clear();
-                goto loop1;
+                if (isWin)
+                {                   
+                    Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
+                    PlayerInfo.AddRecords(_playersChoice[0], userScore);
+                }
+                else
+                    Console.WriteLine($"Вы не справились, игра окончена");
+                wannaPlay = IsRestart();
             }
+            Paint("СПАСИБО ВАМ ЗА ИГРУ", ConsoleColor.DarkGreen);
         }
 
         public static void DisplayEnemies(List<IEnemy> enemies)
@@ -208,6 +163,57 @@ namespace HodimBrodim
                 if (map[position] == ' ')
                     return position;
             }
+        }
+        private static int StartGame(out bool win)
+        {
+            _startMoves = GameMap.GetMapSize(_playersChoice[0]);
+            PlayerInfo.Initialize(_playersChoice[0]);
+            GameMap map = new();
+            var enemies = GetEnemies(map, _playersChoice[1]);
+            var player = new Player(map, GetPosition(map), _startMoves);
+            Console.Clear();
+
+            while (true)
+            {
+                player.ShowPlayerStatistic();
+                map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+                Console.SetCursorPosition(player.Position.X, player.Position.Y);
+                Paint('T', ConsoleColor.Green);
+                DisplayEnemies(enemies);
+                ConsoleKeyInfo pressedKey = Console.ReadKey();
+                PlayerInfo.ShowRecordsTable(pressedKey);
+                player.Move(pressedKey, map.Map);
+                for (int i = 0; i < enemies.Count; i++)
+                {
+                    enemies[i].Move(player.Position);
+                    if (enemies[i].CollisionWithPlayer(player.Position))
+                    {
+                        player.FightWithEnemy();
+                        enemies.RemoveAt(i);
+                        map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+                        break;
+                    }
+                }
+                RandomEvents.InvokeEvent(map, player, enemies);
+                _actionsOnCollision[map[player.Position]].Invoke(player, map);
+
+                if (player.TreasureCount == map.TreasuresOnTheMap ||
+                    (enemies.Count == 0 && _playersChoice[1] != 0))
+                    break;
+                if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
+                {
+                    win = false;
+                    return -1;
+                }
+            }
+            win = true;
+            return _startMoves - player.MovesAvailable;
+        }
+        private static bool IsRestart()
+        {
+            Console.WriteLine("Хотите улучшить результат? да/нет");
+            string answer = Console.ReadLine();
+            return _agreement.Contains(answer);
         }
     }
 }

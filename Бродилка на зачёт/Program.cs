@@ -9,6 +9,33 @@ namespace HodimBrodim
     public class Program
     {
         private static int _startMoves;
+        private static Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
+        {
+            ['X'] = (player, map) =>
+            {
+                player.AddTreasure();
+                map[player.Position] = ' ';
+                player.Health /= 10;
+                player.Damage /= 10;
+            },
+            ['A'] = (player, map) =>
+            {
+                player.Armor = 3;
+                map[player.Position] = ' ';
+            },
+            ['D'] = (player, map) =>
+            {
+                player.Damage /= 3;
+                map[player.Position] = ' ';
+            },
+            ['H'] = (player, map) =>
+            {
+                player.Health /= 3;
+                map[player.Position] = ' ';
+            },
+            ['@'] = (player, map) => player.MovesAvailable -= 10,
+            [' '] = (player, map) => { },
+        };
         static void Main(string[] args)
         {
             var playersChoice = RecieveFromPlayerGameParametres();
@@ -19,7 +46,6 @@ namespace HodimBrodim
             PlayerInfo.Initialize(playersChoice[0]);
             GameMap map = new GameMap();
             var enemies = GetEnemies(map, playersChoice[1]);
-            DrawBonusesForPlayer(map);
             var player = new Player(map, GetPosition(map), _startMoves);
             Console.Clear();
 
@@ -45,32 +71,9 @@ namespace HodimBrodim
                     }
                 }
                 RandomEvents.InvokeEvent(map, player, enemies);
-
-                if (map[player.Position] == 'X')
-                {
-                    player.AddTreasure();
-                    map[player.Position] = ' ';
-                    player.Health /= 10;
-                    player.Damage /= 10;
-                }
-                if (map[player.Position] == '@')
-                    player.MovesAvailable -= 10;
-                if (map[player.Position] == 'D')
-                {
-                    player.Damage /= 4;
-                    map[player.Position] = ' ';
-                }
-                if (map[player.Position] == 'A')
-                {
-                    player.Armor = 2;
-                    map[player.Position] = ' ';
-                }
-                if (map[player.Position] == 'H')
-                {
-                    player.Health /= 4;
-                    map[player.Position] = ' ';
-                }
-                if (player.TreasureCount == map.TreasuresOnTheMap || 
+                _actionsOnCollision[map[player.Position]].Invoke(player, map);
+               
+                if (player.TreasureCount == map.TreasuresOnTheMap ||
                     (enemies.Count == 0 && playersChoice[1] != 0))
                     break;
                 if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
@@ -80,13 +83,13 @@ namespace HodimBrodim
 
                     Console.WriteLine("Хотите улучшить результат? да/нет");
                     string userInput = Console.ReadLine();
-                    
+
                     if (userInput == "да" || userInput == "if" || userInput == "lf" ||
-                        userInput == "fl" || userInput == "ад")      
+                        userInput == "fl" || userInput == "ад")
                         goto loop1;
-                    
+
                     Environment.Exit(0);
-                }                
+                }
             }
             Console.Clear();
             Console.WriteLine($"Вы победиди за {_startMoves - player.MovesAvailable} ходов, поздравляю!!!");
@@ -104,13 +107,6 @@ namespace HodimBrodim
         {
             foreach (var enemy in enemies)
                 enemy.Display();
-        }
-
-        public static void DrawBonusesForPlayer(GameMap map)
-        {
-            map.DrawSymbolOnEmptyCell('A');
-            map.DrawSymbolOnEmptyCell('D');
-            map.DrawSymbolOnEmptyCell('H');
         }
         public static void Paint(char symbol, ConsoleColor color)
         {

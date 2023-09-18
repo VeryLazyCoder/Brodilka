@@ -22,6 +22,9 @@ namespace HodimBrodim
                 for (int y = 0; y < map.GetLength(1); y++)
                     map[x, y] = file[y][x];
             Map = map;
+            DrawSymbolOnEmptyCell('A');
+            DrawSymbolOnEmptyCell('D');
+            DrawSymbolOnEmptyCell('H');
             CountTreasures();
         }
 

@@ -15,7 +15,7 @@ namespace HodimBrodim
             Console.CursorVisible = false;
 
             var startMoves = GameMap.GetMovesOnChoosenMap(mapVariant);
-            PlayerInfo.Initialize(mapVariant);
+            PlayerInfo.LoadReckords(mapVariant);
             bool wannaPlay = true;
             
             while (wannaPlay)

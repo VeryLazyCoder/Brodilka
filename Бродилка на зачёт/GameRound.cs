@@ -47,7 +47,7 @@ namespace HodimBrodim
         {
             _map = new GameMap();
             _enemies = GetEnemies( enemyCount);
-            _player = new Player(_map, Program.GetEmptyPosition(_map), _startMoves);
+            _player = new Player(Program.GetEmptyPosition(_map), _startMoves);
             
             Console.Clear();
 

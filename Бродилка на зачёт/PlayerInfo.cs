@@ -24,7 +24,7 @@ namespace HodimBrodim
             _date = date;
         }
 
-        public static void Initialize(int mapID)
+        public static void LoadReckords(int mapID)
         {
             using SqlConnection connection = new(connectionString);
             connection.Open();

@@ -58,7 +58,7 @@ namespace HodimBrodim
                     bool rightPostion = false;
                     while (rightPostion == false)
                     {
-                        var position = Program.GetPosition(map);
+                        var position = Program.GetEmptyPosition(map);
                         if (map[position] == ' ')
                         {
                             map[position] = 'X';
@@ -71,7 +71,7 @@ namespace HodimBrodim
                     player.MovesAvailable += 5;
                     break;
                 case 3:
-                    enemies.Add(new CommomEnemy(Program.GetPosition(map), map));
+                    enemies.Add(new CommomEnemy(Program.GetEmptyPosition(map), map));
                     break;
                 case 4:
                     player.Health = player.Health / 10;

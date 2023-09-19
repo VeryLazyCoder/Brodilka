@@ -34,7 +34,7 @@ namespace HodimBrodim
             set => Map[point.X, point.Y] = value;
         }
 
-        public static int GetMapSize(int mapVariant)
+        public static int GetMovesOnChoosenMap(int mapVariant)
         {
             MapID = mapVariant;
             switch (MapID)

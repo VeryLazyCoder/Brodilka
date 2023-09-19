@@ -5,53 +5,30 @@ namespace HodimBrodim
 {
     public class Program
     {
-        private static int _startMoves;
-        private static Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
-        {
-            ['X'] = (player, map) =>
-            {
-                player.AddTreasure();
-                map[player.Position] = ' ';
-                player.Health /= 10;
-                player.Damage /= 10;
-            },
-            ['A'] = (player, map) =>
-            {
-                player.Armor = 3;
-                map[player.Position] = ' ';
-            },
-            ['D'] = (player, map) =>
-            {
-                player.Damage /= 3;
-                map[player.Position] = ' ';
-            },
-            ['H'] = (player, map) =>
-            {
-                player.Health /= 3;
-                map[player.Position] = ' ';
-            },
-            ['@'] = (player, map) => player.MovesAvailable -= 10,
-            [' '] = (player, map) => { },
-        };
-        private static int[] _playersChoice;
         private static string[] _agreementWords = { "да", "lf", "fl", "ад", };
         static void Main(string[] args)
         {
-            _playersChoice = RecieveFromPlayerGameParametres();
+            var playersChoice = RecieveFromPlayerGameParametres();
+            var mapVariant = playersChoice.mapVariant;
+            var numberOfEnemies = playersChoice.numberOfEnemies;
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
-            _startMoves = GameMap.GetMapSize(_playersChoice[0]);
-            PlayerInfo.Initialize(_playersChoice[0]);
+
+            var startMoves = GameMap.GetMovesOnChoosenMap(mapVariant);
+            PlayerInfo.Initialize(mapVariant);
             bool wannaPlay = true;
             
             while (wannaPlay)
             {
-                var userScore = StartGame(out bool isWin, _playersChoice[1]);
+                var roundResult = new GameRound(startMoves).StartGame(numberOfEnemies);
+                var isRoundWin = roundResult.isWinResult;
+
                 Console.Clear();
-                if (isWin)
+                if (isRoundWin)
                 {                   
+                    var userScore = roundResult.userScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
-                    PlayerInfo.AddRecords(_playersChoice[0], userScore);
+                    PlayerInfo.AddRecords(mapVariant, userScore);
                 }
                 else
                     Console.WriteLine($"Вы не справились, игра окончена");
@@ -60,8 +37,6 @@ namespace HodimBrodim
             Paint("СПАСИБО ВАМ ЗА ИГРУ", ConsoleColor.DarkGreen);
         }
 
-        public static void DisplayEnemies(List<IEnemy> enemies) => 
-            enemies.ForEach(enemy => enemy.Display());
         public static void Paint(char symbol, ConsoleColor color)
         {
             ConsoleColor defaultcolor = Console.ForegroundColor;
@@ -100,7 +75,7 @@ namespace HodimBrodim
             Console.WriteLine("\n\nЕсли вы готовы, нажмите любую кнопку и вперёд!");
             Console.ReadKey();
         }
-        public static int[] RecieveFromPlayerGameParametres()
+        public static (int mapVariant, int numberOfEnemies) RecieveFromPlayerGameParametres()
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
@@ -116,8 +91,8 @@ namespace HodimBrodim
                     var numbers = magicThing.Matches(userInput);
                     if (numbers.Count != 1)
                         throw new Exception();
-                    return new int[] {int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]),
-                    int.Parse(Convert.ToString(numbers[0]).Split(" ")[1])};
+                    return (int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]),
+                    int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]));
                 }
                 catch (Exception)
                 {
@@ -126,32 +101,7 @@ namespace HodimBrodim
                 }
             }
         }
-        public static List<IEnemy> GetEnemies(GameMap map, int enemyCount)
-        {
-            var enemies = new List<IEnemy>();
-            //if (enemyCount <= 0 || enemyCount >= 10)
-            //    throw new ArgumentOutOfRangeException(nameof(enemyCount));
-
-            for (int i = 0; i < enemyCount; i++)
-            {
-                if (i == 2)
-                    enemies.Add(GetEnemy(new Point(map.Map.GetLength(0) - 2, map.Map.GetLength(1) - 2), map));
-                else if (i == 3)
-                    enemies.Add(GetEnemy(new(1, 1), map));
-                else
-                    enemies.Add(GetEnemy(GetPosition(map), map));
-            }
-            return enemies;
-        }
-        public static IEnemy GetEnemy(Point point, GameMap map)
-        {
-            var random = new Random();
-            if (random.Next(3) == 0)
-                return new SmartEnemy(point, map);
-            else
-                return new CommomEnemy(point, map);
-        }
-        public static Point GetPosition(GameMap map)
+        public static Point GetEmptyPosition(GameMap map)
         {
             var rand = new Random();
             while (true)
@@ -162,58 +112,7 @@ namespace HodimBrodim
                 if (map[position] == ' ')
                     return position;
             }
-        }
-        private static int StartGame(out bool win, int enemyCount)
-        {
-            var map = new GameMap();
-            var enemies = GetEnemies(map, enemyCount);
-            var player = new Player(map, GetPosition(map), _startMoves);
-            Console.Clear();
-
-            while (true)
-            {
-                player.ShowPlayerStatistic();
-                map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-
-                DisplayCharacter(player);
-                DisplayEnemies(enemies);
-                ConsoleKeyInfo pressedKey = Console.ReadKey();
-                PlayerInfo.ShowRecordsTable(pressedKey);
-                player.Move(pressedKey, map.Map);
-
-                for (int i = 0; i < enemies.Count; i++)
-                {
-                    enemies[i].Move(player.Position);
-                    if (enemies[i].CollisionWithPlayer(player.Position))
-                    {
-                        player.FightWithEnemy();
-                        enemies.RemoveAt(i);
-                        map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-                        break;
-                    }
-                }
-
-                RandomEvents.InvokeEvent(map, player, enemies);
-                _actionsOnCollision[map[player.Position]].Invoke(player, map);
-
-                if (player.TreasureCount == map.TreasuresOnTheMap ||
-                    (enemies.Count == 0 && _playersChoice[1] != 0))
-                    break;
-
-                if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
-                {
-                    win = false;
-                    return -1;
-                }
-            }
-            win = true;
-            return _startMoves - player.MovesAvailable;
-        }
-        private static void DisplayCharacter(Player player)
-        {
-            Console.SetCursorPosition(player.Position.X, player.Position.Y);
-            Paint('T', ConsoleColor.Green);
-        }
+        }       
         private static bool IsRestart()
         {
             Console.WriteLine("Хотите улучшить результат? да/нет");

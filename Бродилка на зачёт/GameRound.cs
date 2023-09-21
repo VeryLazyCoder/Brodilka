@@ -46,9 +46,9 @@ namespace HodimBrodim
         public (int userScore, bool isWinResult) StartGame(int enemyCount)
         {
             _map = new GameMap();
-            _enemies = GetEnemies( enemyCount);
+            _enemies = GetEnemies(enemyCount);
             _player = new Player(Program.GetEmptyPosition(_map), _startMoves);
-            
+
             Console.Clear();
 
             while (true)
@@ -61,8 +61,11 @@ namespace HodimBrodim
 
                 ConsoleKeyInfo pressedKey = Console.ReadKey();
                 PlayerInfo.ShowRecordsTable(pressedKey);
-                _player.Move(pressedKey, _map.Map);
 
+                if (!_player.IsValidTurn(pressedKey))
+                    continue;
+
+                _player.Move(pressedKey, _map);
                 MoveEnemies();
 
                 RandomEvents.InvokeEvent(_map, _player, _enemies);
@@ -74,9 +77,7 @@ namespace HodimBrodim
                     break;
 
                 if (_player.MovesAvailable <= 0 || _player.PlayerIsDead == true)
-                {
-                    return (-1, false);
-                }
+                    return (-1, false);                
             }
             return (_startMoves - _player.MovesAvailable, true);
         }

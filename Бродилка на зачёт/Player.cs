@@ -10,6 +10,15 @@ namespace HodimBrodim
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _fighters;
+        private readonly HashSet<ConsoleKey> _validKeys = new()
+        {
+            ConsoleKey.W,
+            ConsoleKey.A,
+            ConsoleKey.D,
+            ConsoleKey.S,
+            ConsoleKey.Spacebar,
+        };
+
         public Player(Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
             Random rand = new Random();
@@ -32,39 +41,33 @@ namespace HodimBrodim
         {
             TreasureCount++;
         }
-        public void Move(ConsoleKeyInfo pressedKey, char[,] map)
+        public void Move(ConsoleKeyInfo pressedKey, GameMap map)
         {
-            int[] direction = GetDirection(pressedKey);
-            int nextPositionX = Position.X + direction[0];
-            int nextPositionY = Position.Y + direction[1];
-            if (map[nextPositionX, nextPositionY] != '-' & map[nextPositionX, nextPositionY] != '|')
-                Position = new(nextPositionX, nextPositionY);
-            if (direction[0] != 0 || direction[1] != 0)
-                MovesAvailable--;
+            var offset = GetOffsetPoint(pressedKey);
+           
+            if (map.IsEmptyCell(Position + offset))
+                Position += offset;
+
+            MovesAvailable--;
         }
-        private static int[] GetDirection(ConsoleKeyInfo pressedKey)
+        private static Point GetOffsetPoint(ConsoleKeyInfo pressedKey) => pressedKey.Key switch
         {
-            int[] direction = { 0, 0 };
-            if (pressedKey.Key == ConsoleKey.W)
-                direction[1]--;
-
-            else if (pressedKey.Key == ConsoleKey.S)
-                direction[1]++;
-
-            else if (pressedKey.Key == ConsoleKey.A)
-                direction[0]--;
-
-            else if (pressedKey.Key == ConsoleKey.D)
-                direction[0]++;
-
-            else if (pressedKey.Key == ConsoleKey.Escape)
+            ConsoleKey.W => new(0, -1),
+            ConsoleKey.A => new(-1, 0),
+            ConsoleKey.S => new(0, 1),
+            ConsoleKey.D => new(1, 0),
+            _ => new(0, 0)
+        };
+        public bool IsValidTurn(ConsoleKeyInfo pressedKey)
+        {
+            if (pressedKey.Key == ConsoleKey.Escape)
             {
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
                 Environment.Exit(0);
             }
-            return direction;
+            return _validKeys.Contains(pressedKey.Key);
         }
         public void ShowPlayerStatistic()
         {

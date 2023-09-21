@@ -5,7 +5,7 @@ namespace HodimBrodim
 {
     public class Program
     {
-        private static string[] _agreementWords = { "да", "lf", "fl", "ад", };
+        private static string[] _agreementWords = { "да", "lf", "fl", "ад", "yes", "y"};
         static void Main(string[] args)
         {
             var playersChoice = RecieveFromPlayerGameParametres();
@@ -116,8 +116,15 @@ namespace HodimBrodim
         private static bool IsRestart()
         {
             Console.WriteLine("Хотите улучшить результат? да/нет");
-            string answer = Console.ReadLine();
-            return _agreementWords.Contains(answer);
+            var answer = Console.ReadLine();
+            return _agreementWords.Contains(answer?.ToLower());
+        }
+        public static void CloseGame()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Environment.Exit(0);
         }
     }
 }

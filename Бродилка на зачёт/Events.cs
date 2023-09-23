@@ -93,7 +93,7 @@ namespace HodimBrodim
             }
             Console.ReadKey();
             Console.Clear();
-            map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+            map.DrawMap();
         }
     }
 }

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HodimBrodim
+﻿namespace HodimBrodim
 {
     public class GameRound
     {
         private int _startMoves;
+        private int _enemyCount;
         private Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
         {
             ['X'] = (player, map) =>
@@ -40,48 +34,60 @@ namespace HodimBrodim
         private Player _player;
         private GameMap _map;
         private List<IEnemy> _enemies;
-
-        public GameRound(int startMoves) => _startMoves = startMoves;
-
-        public (int userScore, bool isWinResult) StartGame(int enemyCount)
+        private readonly HashSet<ConsoleKey> _validKeys = new()
         {
+            ConsoleKey.W,
+            ConsoleKey.A,
+            ConsoleKey.D,
+            ConsoleKey.S,
+            ConsoleKey.Spacebar,
+        };
+
+        public GameRound(int startMoves, int enemyCount)
+        {
+            _startMoves = startMoves;
+            _enemyCount = enemyCount;
             _map = new GameMap();
             _enemies = GetEnemies(enemyCount);
             _player = new Player(Program.GetEmptyPosition(_map), _startMoves);
+        }
 
+        public (int userScore, bool isWinResult) StartGame()
+        {
             Console.Clear();
-
             while (true)
             {
-                _player.ShowPlayerStatistic();
-                _map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-
-                DisplayCharacter();
-                DisplayEnemies();
+                DisplayGameObjects();
 
                 ConsoleKeyInfo pressedKey = Console.ReadKey();
                 PlayerInfo.ShowRecordsTable(pressedKey);
 
-                if (!_player.IsValidTurn(pressedKey))
+                if (!IsValidTurn(pressedKey))
                     continue;
 
                 _player.Move(pressedKey, _map);
                 MoveEnemies();
 
                 RandomEvents.InvokeEvent(_map, _player, _enemies);
-
                 _actionsOnCollision[_map[_player.Position]].Invoke(_player, _map);
 
                 if (_player.TreasureCount == _map.TreasuresOnTheMap ||
-                    (_enemies.Count == 0 && enemyCount != 0))
+                    (_enemies.Count == 0 && _enemyCount != 0))
                     break;
 
                 if (_player.MovesAvailable <= 0 || _player.PlayerIsDead == true)
-                    return (-1, false);                
+                    return (-1, false);
             }
             return (_startMoves - _player.MovesAvailable, true);
         }
 
+        private void DisplayGameObjects()
+        {
+            _player.ShowPlayerStatistic();
+            _map.DrawMap();
+            DisplayCharacter();
+            DisplayEnemies();
+        }
         private void MoveEnemies()
         {
             for (int i = 0; i < _enemies.Count; i++)
@@ -91,12 +97,11 @@ namespace HodimBrodim
                 {
                     _player.FightWithEnemy();
                     _enemies.RemoveAt(i);
-                    _map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+                    _map.DrawMap();
                     break;
                 }
             }
         }
-
         private void DisplayEnemies() =>
             _enemies.ForEach(enemy => enemy.Display());
         private List<IEnemy> GetEnemies(int enemyCount)
@@ -116,18 +121,26 @@ namespace HodimBrodim
             }
             return enemies;
         }
-        private IEnemy GetEnemy(Point point)
-        {
-            var random = new Random();
-            if (random.Next(3) == 0)
-                return new SmartEnemy(point, _map);
-            else
-                return new CommomEnemy(point, _map);
-        }
+        private IEnemy GetEnemy(Point point) => 
+            new Random().Next(3) == 0? new SmartEnemy(point, _map) : new CommomEnemy(point, _map);
         private void DisplayCharacter()
         {
             Console.SetCursorPosition(_player.Position.X, _player.Position.Y);
             Program.Paint('T', ConsoleColor.Green);
+        }
+        private bool IsValidTurn(ConsoleKeyInfo pressedKey)
+        {
+            if (pressedKey.Key == ConsoleKey.Escape)           
+                CloseGame();
+            
+            return _validKeys.Contains(pressedKey.Key);
+        }
+        private static void CloseGame()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Environment.Exit(0);
         }
     }
 }

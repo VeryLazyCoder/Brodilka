@@ -10,14 +10,6 @@ namespace HodimBrodim
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _fighters;
-        private readonly HashSet<ConsoleKey> _validKeys = new()
-        {
-            ConsoleKey.W,
-            ConsoleKey.A,
-            ConsoleKey.D,
-            ConsoleKey.S,
-            ConsoleKey.Spacebar,
-        };
 
         public Player(Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
@@ -58,17 +50,6 @@ namespace HodimBrodim
             ConsoleKey.D => new(1, 0),
             _ => new(0, 0)
         };
-        public bool IsValidTurn(ConsoleKeyInfo pressedKey)
-        {
-            if (pressedKey.Key == ConsoleKey.Escape)
-            {
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
-                Environment.Exit(0);
-            }
-            return _validKeys.Contains(pressedKey.Key);
-        }
         public void ShowPlayerStatistic()
         {
             Console.ForegroundColor = ConsoleColor.Green;

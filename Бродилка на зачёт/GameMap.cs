@@ -22,6 +22,7 @@ namespace HodimBrodim
                 for (int y = 0; y < map.GetLength(1); y++)
                     map[x, y] = file[y][x];
             Map = map;
+
             DrawSymbolOnEmptyCell('A');
             DrawSymbolOnEmptyCell('D');
             DrawSymbolOnEmptyCell('H');
@@ -64,36 +65,16 @@ namespace HodimBrodim
                 }
             }
         }
-        public void DrawMap(ConsoleColor color, ConsoleColor treasureColor)
+        public void DrawMap()
         {
-            Console.ForegroundColor = color;
             Console.SetCursorPosition(0, 0);
             for (int y = 0; y < Map.GetLength(1); y++)
             {
                 for (int x = 0; x < Map.GetLength(0); x++)
                 {
-                    if (Map[x, y] == 'X')
-                    {
-                        Console.ForegroundColor = treasureColor;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    else if (Map[x, y] == 'A' || Map[x, y] == 'D' || Map[x, y] == 'H')
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    else if (Map[x, y] == '@')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    Console.Write(Map[x, y]);
+                    var currentSymbol = Map[x, y];
+                    Console.ForegroundColor = GetColor(currentSymbol);
+                    Console.Write(currentSymbol);
                 }
                 Console.WriteLine();
             }
@@ -105,10 +86,14 @@ namespace HodimBrodim
                     if (Map[i, j] == 'X')
                         TreasuresOnTheMap += 1;
         }
-        public void AddOneTreasure()
-        {
-            TreasuresOnTheMap++;
-        }
+        public void AddOneTreasure() => TreasuresOnTheMap++;
         public bool IsEmptyCell(Point position) => this[position] != '|' && this[position] != '-';
+        private ConsoleColor GetColor(char symbol) => symbol switch
+        {
+            'X' => ConsoleColor.Cyan,
+            'A' or 'D' or 'H' => ConsoleColor.DarkGreen,
+            '@' => ConsoleColor.Yellow,
+            _ => ConsoleColor.DarkYellow
+        };
     }
-}
+}   

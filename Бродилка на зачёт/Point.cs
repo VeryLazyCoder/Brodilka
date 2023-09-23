@@ -19,7 +19,7 @@ namespace HodimBrodim
         public static bool operator == (Point a , Point b)=>
             a.X == b.X && a.Y == b.Y;
 
-        public static bool operator !=(Point a, Point b) =>
+        public static bool operator != (Point a, Point b) =>
             a.X != b.X || a.Y != b.Y;
     }
 }

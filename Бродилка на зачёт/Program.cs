@@ -1,117 +1,42 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace HodimBrodim
 {
     public class Program
     {
-        private static int _startMoves;
+        private static string[] _agreementWords = { "да", "lf", "fl", "ад", };
         static void Main(string[] args)
         {
             var playersChoice = RecieveFromPlayerGameParametres();
+            var mapVariant = playersChoice.mapVariant;
+            var numberOfEnemies = playersChoice.numberOfEnemies;
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
-        loop1:
-            _startMoves = GameMap.GetMapSize(playersChoice[0]);
-            PlayerInfo.Initialize(playersChoice[0]);
-            GameMap map = new GameMap();
-            var enemies = GetEnemies(map, playersChoice[1]);
-            DrawBonusesForPlayer(map);
-            var player = new Player(map, GetPosition(map), _startMoves);
-            Console.Clear();
 
-            while (true)
+            var startMoves = GameMap.GetMovesOnChoosenMap(mapVariant);
+            PlayerInfo.LoadReckords(mapVariant);
+            bool wannaPlay = true;
+            
+            while (wannaPlay)
             {
-                player.ShowPlayerStatistic();
-                map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-                Console.SetCursorPosition(player.Position.X, player.Position.Y);
-                Paint('T', ConsoleColor.Green);
-                DisplayEnemies(enemies);
-                ConsoleKeyInfo pressedKey = Console.ReadKey();
-                PlayerInfo.ShowRecordsTable(pressedKey);
-                player.Move(pressedKey, map.Map);
-                for (int i = 0; i < enemies.Count; i++)
-                {
-                    enemies[i].Move(player.Position);
-                    if (enemies[i].CollisionWithPlayer(player.Position))
-                    {
-                        player.FightWithEnemy();
-                        enemies.RemoveAt(i);
-                        map.DrawMap(ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-                        break;
-                    }
-                }
-                RandomEvents.InvokeEvent(map, player, enemies);
+                var roundResult = new GameRound(startMoves).StartGame(numberOfEnemies);
+                var isRoundWin = roundResult.isWinResult;
 
-                if (map[player.Position] == 'X')
-                {
-                    player.AddTreasure();
-                    map[player.Position] = ' ';
-                    player.Health /= 10;
-                    player.Damage /= 10;
-                }
-                if (map[player.Position] == '@')
-                    player.MovesAvailable -= 10;
-                if (map[player.Position] == 'D')
-                {
-                    player.Damage /= 4;
-                    map[player.Position] = ' ';
-                }
-                if (map[player.Position] == 'A')
-                {
-                    player.Armor = 2;
-                    map[player.Position] = ' ';
-                }
-                if (map[player.Position] == 'H')
-                {
-                    player.Health /= 4;
-                    map[player.Position] = ' ';
-                }
-                if (player.TreasureCount == map.TreasuresOnTheMap || 
-                    (enemies.Count == 0 && playersChoice[1] != 0))
-                    break;
-                if (player.MovesAvailable <= 0 || player.PlayerIsDead == true)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Вы не справились :( Игра окончена");
-
-                    Console.WriteLine("Хотите улучшить результат? да/нет");
-                    string userInput = Console.ReadLine();
-                    
-                    if (userInput == "да" || userInput == "if" || userInput == "lf" ||
-                        userInput == "fl" || userInput == "ад")      
-                        goto loop1;
-                    
-                    Environment.Exit(0);
-                }                
-            }
-            Console.Clear();
-            Console.WriteLine($"Вы победиди за {_startMoves - player.MovesAvailable} ходов, поздравляю!!!");
-            PlayerInfo.AddRecords(playersChoice[0], _startMoves - player.MovesAvailable);
-            Console.WriteLine("Хотите улучшить результат? да/нет");
-            string answer = Console.ReadLine();
-            if (answer == "да" || answer == "if" || answer == "lf" || answer == "fl" || answer == "ад")
-            {
                 Console.Clear();
-                goto loop1;
+                if (isRoundWin)
+                {                   
+                    var userScore = roundResult.userScore;
+                    Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
+                    PlayerInfo.AddRecords(mapVariant, userScore);
+                }
+                else
+                    Console.WriteLine($"Вы не справились, игра окончена");
+                wannaPlay = IsRestart();
             }
+            Paint("СПАСИБО ВАМ ЗА ИГРУ", ConsoleColor.DarkGreen);
         }
 
-        public static void DisplayEnemies(List<IEnemy> enemies)
-        {
-            foreach (var enemy in enemies)
-                enemy.Display();
-        }
-
-        public static void DrawBonusesForPlayer(GameMap map)
-        {
-            map.DrawSymbolOnEmptyCell('A');
-            map.DrawSymbolOnEmptyCell('D');
-            map.DrawSymbolOnEmptyCell('H');
-        }
         public static void Paint(char symbol, ConsoleColor color)
         {
             ConsoleColor defaultcolor = Console.ForegroundColor;
@@ -150,7 +75,7 @@ namespace HodimBrodim
             Console.WriteLine("\n\nЕсли вы готовы, нажмите любую кнопку и вперёд!");
             Console.ReadKey();
         }
-        public static int[] RecieveFromPlayerGameParametres()
+        public static (int mapVariant, int numberOfEnemies) RecieveFromPlayerGameParametres()
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
@@ -166,8 +91,8 @@ namespace HodimBrodim
                     var numbers = magicThing.Matches(userInput);
                     if (numbers.Count != 1)
                         throw new Exception();
-                    return new int[] {int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]),
-                    int.Parse(Convert.ToString(numbers[0]).Split(" ")[1])};
+                    return (int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]),
+                    int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]));
                 }
                 catch (Exception)
                 {
@@ -176,32 +101,7 @@ namespace HodimBrodim
                 }
             }
         }
-        public static List<IEnemy> GetEnemies(GameMap map, int enemyCount)
-        {
-            var enemies = new List<IEnemy>();
-            //if (enemyCount <= 0 || enemyCount >= 10)
-            //    throw new ArgumentOutOfRangeException(nameof(enemyCount));
-
-            for (int i = 0; i < enemyCount; i++)
-            {
-                if (i == 2)
-                    enemies.Add(GetEnemy(new Point(map.Map.GetLength(0) - 2, map.Map.GetLength(1) - 2), map));
-                else if (i == 3)
-                    enemies.Add(GetEnemy(new(1, 1), map));
-                else
-                    enemies.Add(GetEnemy(GetPosition(map), map));
-            }
-            return enemies;
-        }
-        public static IEnemy GetEnemy(Point point, GameMap map)
-        {
-            var random = new Random();
-            if (random.Next(3) == 0)
-                return new SmartEnemy(point, map);
-            else
-                return new CommomEnemy(point, map);
-        }
-        public static Point GetPosition(GameMap map)
+        public static Point GetEmptyPosition(GameMap map)
         {
             var rand = new Random();
             while (true)
@@ -212,6 +112,12 @@ namespace HodimBrodim
                 if (map[position] == ' ')
                     return position;
             }
+        }       
+        private static bool IsRestart()
+        {
+            Console.WriteLine("Хотите улучшить результат? да/нет");
+            string answer = Console.ReadLine();
+            return _agreementWords.Contains(answer);
         }
     }
 }

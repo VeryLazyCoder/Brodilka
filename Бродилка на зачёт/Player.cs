@@ -10,7 +10,7 @@ namespace HodimBrodim
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _fighters;
-        public Player(GameMap map, Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
+        public Player(Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
             Random rand = new Random();
             Position = position;
@@ -66,7 +66,6 @@ namespace HodimBrodim
             }
             return direction;
         }
-
         public void ShowPlayerStatistic()
         {
             Console.ForegroundColor = ConsoleColor.Green;

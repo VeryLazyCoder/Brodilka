@@ -76,7 +76,7 @@ namespace HodimBrodim
         public void Display()
         {
             Console.SetCursorPosition(_position.X, _position.Y);
-            Program.Paint('!', ConsoleColor.Red);
+            Program.Paint('!', ConsoleColor.DarkRed);
         }
 
         public bool CollisionWithPlayer(Point playerPosition)

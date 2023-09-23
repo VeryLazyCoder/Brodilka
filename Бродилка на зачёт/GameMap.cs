@@ -22,6 +22,9 @@ namespace HodimBrodim
                 for (int y = 0; y < map.GetLength(1); y++)
                     map[x, y] = file[y][x];
             Map = map;
+            DrawSymbolOnEmptyCell('A');
+            DrawSymbolOnEmptyCell('D');
+            DrawSymbolOnEmptyCell('H');
             CountTreasures();
         }
 
@@ -31,7 +34,7 @@ namespace HodimBrodim
             set => Map[point.X, point.Y] = value;
         }
 
-        public static int GetMapSize(int mapVariant)
+        public static int GetMovesOnChoosenMap(int mapVariant)
         {
             MapID = mapVariant;
             switch (MapID)

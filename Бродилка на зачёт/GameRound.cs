@@ -3,29 +3,28 @@
     public class GameRound
     {
         private int _startMoves;
-        private int _enemyCount;
+        private readonly int _initialEnemisCount;
         private Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
         {
             ['X'] = (player, map) =>
             {
                 player.AddTreasure();
                 map[player.Position] = ' ';
-                player.Health /= 10;
-                player.Damage /= 10;
+                player.RaiseStats();
             },
             ['A'] = (player, map) =>
             {
-                player.Armor = 3;
+                player.ChangeArmor(3);
                 map[player.Position] = ' ';
             },
             ['D'] = (player, map) =>
             {
-                player.Damage /= 3;
+                player.ChangeDamage(player.Damage / 3);
                 map[player.Position] = ' ';
             },
             ['H'] = (player, map) =>
             {
-                player.Health /= 3;
+                player.ChangeHealth(player.Health / 3);
                 map[player.Position] = ' ';
             },
             ['@'] = (player, map) => player.MovesAvailable -= 10,
@@ -46,7 +45,7 @@
         public GameRound(int startMoves, int enemyCount)
         {
             _startMoves = startMoves;
-            _enemyCount = enemyCount;
+            _initialEnemisCount = enemyCount;
             _map = new GameMap();
             _enemies = GetEnemies(enemyCount);
             _player = new Player(Program.GetEmptyPosition(_map), _startMoves);
@@ -72,7 +71,7 @@
                 _actionsOnCollision[_map[_player.Position]].Invoke(_player, _map);
 
                 if (_player.TreasureCount == _map.TreasuresOnTheMap ||
-                    (_enemies.Count == 0 && _enemyCount != 0))
+                    (_enemies.Count == 0 && _initialEnemisCount != 0))
                     break;
 
                 if (_player.MovesAvailable <= 0 || _player.PlayerIsDead == true)
@@ -131,16 +130,9 @@
         private bool IsValidTurn(ConsoleKeyInfo pressedKey)
         {
             if (pressedKey.Key == ConsoleKey.Escape)           
-                CloseGame();
+                Program.CloseGame();
             
             return _validKeys.Contains(pressedKey.Key);
-        }
-        private static void CloseGame()
-        {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
-            Environment.Exit(0);
         }
     }
 }

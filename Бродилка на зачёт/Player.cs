@@ -117,5 +117,11 @@ namespace HodimBrodim
             Console.ReadKey();
             Console.Clear();
         }
+        public void RaiseStats()
+        {
+            Health *= 1.1f;
+            Damage *= 1.1f;
+            Armor += 0.2f;
+        }
     }
 }

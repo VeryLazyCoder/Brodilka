@@ -55,18 +55,16 @@ namespace HodimBrodim
                     player.MovesAvailable -= 5;
                     break;
                 case 1:
-                    bool rightPostion = false;
-                    while (rightPostion == false)
+                    while (true)
                     {
                         var position = Program.GetEmptyPosition(map);
                         if (map[position] == ' ')
                         {
                             map[position] = 'X';
                             map.AddOneTreasure();
-                            rightPostion = true;
+                            return;
                         }
                     }
-                    break;
                 case 2:
                     player.MovesAvailable += 5;
                     break;
@@ -74,10 +72,10 @@ namespace HodimBrodim
                     enemies.Add(new CommomEnemy(Program.GetEmptyPosition(map), map));
                     break;
                 case 4:
-                    player.Health = player.Health / 10;
+                    player.ChangeHealth(player.Health / 10);
                     break;
                 case 5:
-                    player.Health = -15;
+                    player.ChangeHealth(-15);
                     break;
                 case 6:
                     string[] compliments = { "Вы лучший",

@@ -29,9 +29,9 @@ namespace HodimBrodim
             using SqlConnection connection = new(connectionString);
             connection.Open();
 
-            string sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
+            var sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
             using SqlCommand command = new(sqlQuery, connection);
-            SqlDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
 
             playerInfo = new List<PlayerInfo>();
             while (reader.Read())
@@ -44,9 +44,7 @@ namespace HodimBrodim
             reader.Close();
 
             command.CommandText = "select max(Id) from Reckord";
-
             _maxID = (int)(command.ExecuteScalar() ?? 1);
-            connection.Close();
         }
 
         private static void UpdateBase(int mapID, PlayerInfo newRow)

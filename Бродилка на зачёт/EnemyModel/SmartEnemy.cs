@@ -45,7 +45,7 @@ namespace HodimBrodim
 
                 if (visited.Contains(point))
                     continue;
-                if (!_map.IsEmptyCell(point))
+                if (!_map.IsNotWall(point))
                     continue;
                 if (point == playerPosition)
                     break;

@@ -34,7 +34,7 @@ namespace HodimBrodim
                 {
                     case 1:
                         newPosition = new(_position.X - 1, _position.Y);
-                        if (_map.IsEmptyCell(newPosition))
+                        if (_map.IsNotWall(newPosition))
                         {
                             _position = newPosition;
                             rightPosition = true;
@@ -42,7 +42,7 @@ namespace HodimBrodim
                         break;
                     case 2:
                         newPosition = new(_position.X - 1, _position.Y);
-                        if (_map.IsEmptyCell(newPosition))
+                        if (_map.IsNotWall(newPosition))
                         {
                             _position = newPosition;
                             rightPosition = true;
@@ -50,7 +50,7 @@ namespace HodimBrodim
                         break;
                     case 3:
                         newPosition = new(_position.X, _position.Y - 1);
-                        if (_map.IsEmptyCell(newPosition))
+                        if (_map.IsNotWall(newPosition))
                         {
                             _position = newPosition;
                             rightPosition = true;
@@ -58,7 +58,7 @@ namespace HodimBrodim
                         break;
                     case 4:
                         newPosition = new(_position.X, _position.Y + 1);
-                        if (_map.IsEmptyCell(newPosition))
+                        if (_map.IsNotWall(newPosition))
                         {
                             _position = newPosition;
                             rightPosition = true;

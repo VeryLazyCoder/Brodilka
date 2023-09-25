@@ -31,7 +31,7 @@ namespace HodimBrodim
         }
         public void TakeDamage(float damage)
         {
-            float trueDamage = damage - (damage * (Armor / 10));
+            var trueDamage = damage - (damage * (Armor / 10));
             Health -= trueDamage;
         }
         

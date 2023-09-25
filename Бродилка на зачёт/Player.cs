@@ -9,7 +9,7 @@ namespace HodimBrodim
         public bool PlayerIsDead { get; private set; }
         public int TreasureCount { get; private set; }
 
-        private readonly List<Fighter> _fighters;
+        private readonly List<Fighter> _enemyFighters;
 
         public Player(Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
@@ -17,7 +17,7 @@ namespace HodimBrodim
             Position = position;
             MovesAvailable = moves;
 
-            _fighters = new List<Fighter>()
+            _enemyFighters = new List<Fighter>()
             {
                 new Fighter("Сумасшедший Маньяк", 200f + rand.Next(-20,21) ,
             2 + rand.Next(-1,2), 75f + rand.Next(-7,8),
@@ -37,19 +37,11 @@ namespace HodimBrodim
         {
             var offset = GetOffsetPoint(pressedKey);
            
-            if (map.IsEmptyCell(Position + offset))
+            if (map.IsNotWall(Position + offset))
                 Position += offset;
 
             MovesAvailable--;
         }
-        private static Point GetOffsetPoint(ConsoleKeyInfo pressedKey) => pressedKey.Key switch
-        {
-            ConsoleKey.W => new(0, -1),
-            ConsoleKey.A => new(-1, 0),
-            ConsoleKey.S => new(0, 1),
-            ConsoleKey.D => new(1, 0),
-            _ => new(0, 0)
-        };
         public void ShowPlayerStatistic()
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -66,33 +58,50 @@ namespace HodimBrodim
         }
         public void FightWithEnemy()
         {
-            Random randomEnemy = new Random();
-            if (_fighters.Count <= 1)
+            Fighter enemyFighter = GetRandomEnemy();
+            ShowEnemyStats(enemyFighter);
+            LaunchFight(enemyFighter);
+            ShowResult();
+        }
+        public void RaiseStats()
+        {
+            Health *= 1.1f;
+            Damage *= 1.1f;
+            Armor += 0.2f;
+        }
+
+        private Fighter GetRandomEnemy()
+        {
+            Random random = new Random();
+            if (_enemyFighters.Count <= 1)
+                AddSecretEnemies();
+
+            Fighter enemyFighter = _enemyFighters[random.Next(_enemyFighters.Count)];
+            return enemyFighter;
+        }
+        private void ShowResult()
+        {
+            if (Health <= 0)
             {
-                _fighters.Add(new Fighter("Браго", int.MaxValue / 500, 0, int.MaxValue / 500, "Это Браго"));
-                _fighters.Add(new Fighter("Мурад", randomEnemy.Next(0, int.MaxValue / 500),
-                    randomEnemy.Next(0, 11),
-            randomEnemy.Next(0, int.MaxValue / 500), "Загадочный и непостижимый"));
+                PlayerIsDead = true;
+                Console.WriteLine("Вы проиграли");
             }
-            int enemyFighterNumber = randomEnemy.Next(0, _fighters.Count);
-            Fighter enemyFighter = _fighters[enemyFighterNumber];
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Противник догнал вас, но вы готовы дать ему отпор!\n\n" +
-                "Вашим соперником окажется кто-то из нижеперечисленных бойцов\n");
-            for (int i = 0; i < _fighters.Count; i++)
-            {
-                Console.Write(i + 1 + " ");
-                _fighters[i].ShowFighterStats();
-                Console.WriteLine();
-            }
-            Console.WriteLine("Нажмите любую клавишу, чтобы встретиться со своей судьбой");
+            else
+                Console.WriteLine("Вы победили этого противника, пока что...");
+
+            Console.WriteLine("Нажмите любую клавишу, чтобы продолжить\n");
             Console.ReadKey();
-            Console.WriteLine($"Вашим сопреником оказался {enemyFighter.Name}");
-            enemyFighter.ShowFighterStats();
-            Thread.Sleep(1500);
-            Console.WriteLine("Битва началась");
-            while (Health > 0 & enemyFighter.Health > 0)
+            Console.Clear();
+        }
+        private void LaunchFight(Fighter enemyFighter)
+        {
+            LaunchBattleCycle(enemyFighter);
+            if (Health > 0)
+                _enemyFighters.Remove(enemyFighter);
+        }
+        private void LaunchBattleCycle(Fighter enemyFighter)
+        {
+            while (Health > 0 && enemyFighter.Health > 0)
             {
                 Thread.Sleep(150);
                 enemyFighter.TakeDamage(Damage);
@@ -101,27 +110,41 @@ namespace HodimBrodim
                 enemyFighter.ShowRoundStatistic(Damage);
                 Console.WriteLine(new string('-', 70));
             }
-            if (Health <= 0)
-            {
-                PlayerIsDead = true;
-                Console.WriteLine("Вы проиграли");
-            }
-            else
-            {
-                _fighters.Remove(enemyFighter);
-                Console.WriteLine("Вы победили этого противника, пока что...");
-            }
-            Console.WriteLine("Нажмите любую клавишу, чтобы продолжить\n" +
-                "Не пугайтесь, что увидите пустую карту, после первго же вашего хода " +
-                "всё вернётся в норму, если вы выжили, конечно");
-            Console.ReadKey();
-            Console.Clear();
         }
-        public void RaiseStats()
+        private void ShowEnemyStats(Fighter enemyFighter)
         {
-            Health *= 1.1f;
-            Damage *= 1.1f;
-            Armor += 0.2f;
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("Противник догнал вас, но вы готовы дать ему отпор!\n\n" +
+                "Вашим соперником окажется кто-то из нижеперечисленных бойцов\n");
+            for (int i = 0; i < _enemyFighters.Count; i++)
+            {
+                Console.Write(i + 1 + " ");
+                _enemyFighters[i].ShowFighterStats();
+                Console.WriteLine();
+            }
+            Console.WriteLine("Нажмите любую клавишу, чтобы встретиться со своей судьбой");
+            Console.ReadKey();
+            Console.WriteLine($"Вашим сопреником оказался {enemyFighter.Name}");
+            enemyFighter.ShowFighterStats();
+            Thread.Sleep(1500);
+            Console.WriteLine("Битва началась");
         }
+        private void AddSecretEnemies()
+        {
+            var random = new Random();
+            _enemyFighters.Add(new Fighter("Браго", int.MaxValue / 500, 0, int.MaxValue / 500, "Это Браго"));
+            _enemyFighters.Add(new Fighter("Мурад", random.Next(0, int.MaxValue / 500),
+                random.Next(0, 11),
+                random.Next(0, int.MaxValue / 500), "Загадочный и непостижимый"));
+        }
+        private Point GetOffsetPoint(ConsoleKeyInfo pressedKey) => pressedKey.Key switch
+        {
+            ConsoleKey.W => new(0, -1),
+            ConsoleKey.A => new(-1, 0),
+            ConsoleKey.S => new(0, 1),
+            ConsoleKey.D => new(1, 0),
+            _ => new(0, 0)
+        };
     }
 }

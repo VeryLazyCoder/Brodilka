@@ -65,7 +65,7 @@ namespace HodimBrodim
             }
         }
         public void AddOneTreasure() => TreasuresOnTheMap++;
-        public bool IsEmptyCell(Point position) => this[position] != '|' && this[position] != '-';
+        public bool IsNotWall(Point position) => this[position] != '|' && this[position] != '-';
         private void DrawSymbolOnEmptyCell(char symbol)
         {
             while (true)

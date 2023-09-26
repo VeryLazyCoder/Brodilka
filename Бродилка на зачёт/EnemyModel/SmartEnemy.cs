@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace HodimBrodim
 {
@@ -12,76 +6,82 @@ namespace HodimBrodim
     {
         private Point _position;
         private Point _previousPosition;
+        private Dictionary<Point, Point> _track;
         private readonly GameMap _map;
-        private readonly List<Point> offsetPoints = new List<Point>
-                {
-                    new Point(-1, 0),
-                    new Point(1, 0),
-                    new Point(0, -1),
-                    new Point(0, 1),
-                };
+        private readonly Point[] _offsetPoints;
+        private readonly Point _nullPoint = new(-1, -1);
 
         public Point Position => _position;
         public Point PreviousPosition => _previousPosition;
+        private Point _startPointForBFS => _position;
 
         public SmartEnemy(Point position, GameMap map)
         {
             _map = map;
             _position = position;
             _previousPosition = position;
+            _offsetPoints = new Point[]
+            {
+                new Point(-1, 0),
+                new Point(1, 0),
+                new Point(0, -1),
+                new Point(0, 1),
+            };
+            _track = new();
         }
+
         public void Move(Point playerPosition)
-        {
-            var start = _position;
-            var track = new Dictionary<Point, Point>();
-            var nullPoint = new Point(-1, -1);
-            track[start] = nullPoint;
-            var visited = new HashSet<Point>();
-            var queue = new Queue<Point>();
-            queue.Enqueue(start);
-            while (queue.Count != 0)
-            {
-                var point = queue.Dequeue();
-
-                if (visited.Contains(point))
-                    continue;
-                if (!_map.IsNotWall(point))
-                    continue;
-                if (point == playerPosition)
-                    break;
-
-                foreach (var p in offsetPoints)
-                {
-                    var nextpoint = new Point(point.X + p.X, p.Y + point.Y);
-                    queue.Enqueue(nextpoint);
-                    if (!visited.Contains(nextpoint))
-                        track[nextpoint] = point;
-                }
-                visited.Add(point);
-            }
-
-            var pathItem = playerPosition;
-            var result = new List<Point>();
-
-            while (pathItem != nullPoint)
-            {
-                result.Add(pathItem);
-                pathItem = track[pathItem];
-            }
-            result.Reverse();
-            _previousPosition = _position;
-            _position = result.Count > 1 ? result[1] : _previousPosition;
+        {           
+            FillTrackToPlayer(playerPosition);
+            (_previousPosition, _position) = (_position, GetNextPointToPlayer(playerPosition));
         }
-
         public void Display()
         {
             Console.SetCursorPosition(_position.X, _position.Y);
             Program.Paint('!', ConsoleColor.DarkRed);
         }
+        public bool CollisionWithPlayer(Point playerPosition) =>
+            playerPosition == _position || playerPosition == _previousPosition;
 
-        public bool CollisionWithPlayer(Point playerPosition)
+        private Point GetNextPointToPlayer(Point playerPosition)
         {
-            return playerPosition == _position || playerPosition == _previousPosition;
+            var pathItem = playerPosition;
+            var path = new List<Point>();
+
+            while (pathItem != _nullPoint)
+            {
+                path.Add(pathItem);
+                pathItem = _track[pathItem];
+            }
+            path.Reverse();
+            return path.Count > 1 ? path[1] : _position;
+        }
+        private void FillTrackToPlayer(Point playerPosition)
+        {
+            _track.Clear();
+            _track[_startPointForBFS] = _nullPoint;
+            var visited = new HashSet<Point>();
+            var pointQueue = new Queue<Point>();
+            pointQueue.Enqueue(_startPointForBFS);
+
+            while (pointQueue.Count != 0)
+            {
+                var point = pointQueue.Dequeue();
+
+                if (visited.Contains(point) || !_map.IsNotWall(point))
+                    continue;
+                if (point == playerPosition)
+                    break;
+
+                foreach (var p in _offsetPoints)
+                {
+                    var nextpoint = point + p;
+                    pointQueue.Enqueue(nextpoint);
+                    if (!visited.Contains(nextpoint))
+                        _track[nextpoint] = point;
+                }
+                visited.Add(point);
+            }
         }
     }
 }

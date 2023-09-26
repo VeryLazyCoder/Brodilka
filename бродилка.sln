@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ООП бродилка с 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zродилка", "Zродилка\Zродилка.csproj", "{FDE8C648-121A-4BBB-9FB6-86DB66F69866}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Бродилка на зачёт", "Бродилка на зачёт\Бродилка на зачёт.csproj", "{AAD671BE-4841-4AF7-90EB-80162B3F803B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brodilka", "Бродилка на зачёт\Brodilka.csproj", "{AAD671BE-4841-4AF7-90EB-80162B3F803B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrolilkaShould", "BrolilkaShould\BrolilkaShould.csproj", "{847C2F92-7DA6-4266-A985-D1C6BD8E722A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrolilkaShould", "BrolilkaShould\BrolilkaShould.csproj", "{847C2F92-7DA6-4266-A985-D1C6BD8E722A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

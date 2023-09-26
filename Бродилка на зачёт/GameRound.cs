@@ -84,8 +84,8 @@
         {
             _player.ShowPlayerStatistic();
             _map.DrawMap();
-            DisplayCharacter();
             DisplayEnemies();
+            DisplayCharacter();
         }
         private void MoveEnemies()
         {

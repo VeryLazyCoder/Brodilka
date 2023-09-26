@@ -1,5 +1,4 @@
-﻿
-namespace HodimBrodim
+﻿namespace HodimBrodim
 {
     public class RandomEvents
     {

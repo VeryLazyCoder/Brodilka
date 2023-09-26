@@ -90,7 +90,6 @@
             }
             Console.ReadKey();
             Console.Clear();
-            map.DrawMap();
         }
     }
 }

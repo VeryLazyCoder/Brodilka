@@ -62,11 +62,12 @@ namespace HodimBrodim
         public static void AddRecords(int mapID, int playerScore)
         {
             ShowRecordsTable(new ConsoleKeyInfo('R', ConsoleKey.R, false, false, false));
-            Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого введите '+')");
+            Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого нажмите 'y')");
 
-            if (Console.ReadLine() == "+")
+            var userInput = Console.ReadKey(true).Key;
+            if (userInput == ConsoleKey.Y)
             {
-                Console.Write("Введите ваше имя ");
+                Console.WriteLine("Введите ваше имя ");
                 string nameOfPlayer = Console.ReadLine();
                 UpdateBase(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
             }

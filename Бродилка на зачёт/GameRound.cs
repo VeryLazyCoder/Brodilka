@@ -58,7 +58,7 @@
             {
                 DisplayGameObjects();
 
-                ConsoleKeyInfo pressedKey = Console.ReadKey();
+                ConsoleKeyInfo pressedKey = Console.ReadKey(true);
                 PlayerInfo.ShowRecordsTable(pressedKey);
 
                 if (!IsValidTurn(pressedKey))

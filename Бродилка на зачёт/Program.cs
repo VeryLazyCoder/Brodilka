@@ -115,9 +115,8 @@ namespace HodimBrodim
         }       
         private static bool IsRestart()
         {
-            Console.WriteLine("Хотите улучшить результат? да/нет");
-            var answer = Console.ReadLine();
-            return _agreementWords.Contains(answer?.ToLower());
+            Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");
+            return Console.ReadKey().Key == ConsoleKey.Y;
         }
         public static void CloseGame()
         {

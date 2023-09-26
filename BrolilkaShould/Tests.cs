@@ -1,17 +1,22 @@
 using HodimBrodim;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace BrolilkaShould
 {
+    [TestFixture]
     public class Tests
     {
 
         [Test]
         public void Test1()
         {
-            GameMap.GetMovesOnChoosenMap(1);
-            var map = new GameMap();
-            Assert.That(4, Is.EqualTo(HodimBrodim.Program.GetEnemies(map, 4).Count));
+            var enemy = new SmartEnemy(new Point(1, 1), null);
+            Assert.IsFalse(enemy.CollisionWithPlayer(new Point(2, 2)));
+        }
+        [Test]
+        public void Test2()
+        {
+            var enemy = new SmartEnemy(new Point(1, 1), null);
+            Assert.IsTrue(enemy.CollisionWithPlayer(enemy.Position));
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 
 namespace HodimBrodim
 {
@@ -29,9 +24,9 @@ namespace HodimBrodim
             using SqlConnection connection = new(connectionString);
             connection.Open();
 
-            string sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
+            var sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
             using SqlCommand command = new(sqlQuery, connection);
-            SqlDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
 
             playerInfo = new List<PlayerInfo>();
             while (reader.Read())
@@ -44,9 +39,7 @@ namespace HodimBrodim
             reader.Close();
 
             command.CommandText = "select max(Id) from Reckord";
-
             _maxID = (int)(command.ExecuteScalar() ?? 1);
-            connection.Close();
         }
 
         private static void UpdateBase(int mapID, PlayerInfo newRow)
@@ -69,11 +62,12 @@ namespace HodimBrodim
         public static void AddRecords(int mapID, int playerScore)
         {
             ShowRecordsTable(new ConsoleKeyInfo('R', ConsoleKey.R, false, false, false));
-            Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого введите '+')");
+            Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого нажмите 'y')");
 
-            if (Console.ReadLine() == "+")
+            var userInput = Console.ReadKey(true).Key;
+            if (userInput == ConsoleKey.Y)
             {
-                Console.Write("Введите ваше имя ");
+                Console.WriteLine("Введите ваше имя ");
                 string nameOfPlayer = Console.ReadLine();
                 UpdateBase(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
             }

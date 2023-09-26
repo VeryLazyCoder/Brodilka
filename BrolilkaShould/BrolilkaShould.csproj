@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Бродилка на зачёт\Бродилка на зачёт.csproj" />
+    <ProjectReference Include="..\Бродилка на зачёт\Brodilka.csproj" />
   </ItemGroup>
 
 </Project>

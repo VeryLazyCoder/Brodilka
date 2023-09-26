@@ -1,11 +1,10 @@
-﻿using System.Drawing;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace HodimBrodim
 {
     public class Program
     {
-        private static string[] _agreementWords = { "да", "lf", "fl", "ад", };
+        private static string[] _agreementWords = { "да", "lf", "fl", "ад", "yes", "y"};
         static void Main(string[] args)
         {
             var playersChoice = RecieveFromPlayerGameParametres();
@@ -16,11 +15,11 @@ namespace HodimBrodim
 
             var startMoves = GameMap.GetMovesOnChoosenMap(mapVariant);
             PlayerInfo.LoadReckords(mapVariant);
-            bool wannaPlay = true;
+            var wannaPlay = true;
             
             while (wannaPlay)
             {
-                var roundResult = new GameRound(startMoves).StartGame(numberOfEnemies);
+                var roundResult = new GameRound(startMoves, numberOfEnemies).StartGame();
                 var isRoundWin = roundResult.isWinResult;
 
                 Console.Clear();
@@ -32,6 +31,7 @@ namespace HodimBrodim
                 }
                 else
                     Console.WriteLine($"Вы не справились, игра окончена");
+
                 wannaPlay = IsRestart();
             }
             Paint("СПАСИБО ВАМ ЗА ИГРУ", ConsoleColor.DarkGreen);
@@ -115,9 +115,15 @@ namespace HodimBrodim
         }       
         private static bool IsRestart()
         {
-            Console.WriteLine("Хотите улучшить результат? да/нет");
-            string answer = Console.ReadLine();
-            return _agreementWords.Contains(answer);
+            Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");
+            return Console.ReadKey().Key == ConsoleKey.Y;
+        }
+        public static void CloseGame()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Environment.Exit(0);
         }
     }
 }

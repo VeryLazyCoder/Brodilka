@@ -1,61 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HodimBrodim
+﻿namespace HodimBrodim
 {
     public class Fighter
     {
-        private float _health;
-        private float _armor;
-        private float _damage;
-        private string _name;
+        public float Health { get; protected set; }
+        public float Damage { get; protected set; }
+        public float Armor { get; protected set; }
+        public string Name { get; private set; }
+
         private string _specialAbilities;
         public Fighter(string name, float health, float armor, float damage,
             string special = " отсутствуют")
         {
-            _name = name;
-            _health = health;
-            _armor = armor;
-            _damage = damage;
+            Name = name;
+            Health = health;
+            Armor = armor;
+            Damage = damage;
             _specialAbilities = special;
         }
         public void ShowFighterStats()
         {
-            Console.WriteLine($"Боец {_name} обладает {_health} хп, " +
-                $"{_armor} брони и наносит {_damage} урона. \nСпециальные способности: {_specialAbilities}");
+            Console.WriteLine($"Боец {Name} обладает {Health} хп, " +
+                $"{Armor} брони и наносит {Damage} урона. \nСпециальные способности: {_specialAbilities}");
         }
         public void TakeDamage(float damage)
         {
-            float trueDamage = damage - (damage * (_armor / 10));
-            _health -= trueDamage;
+            var trueDamage = damage - (damage * (Armor / 10));
+            Health -= trueDamage;
         }
-        public float Health
-        {
-            get { return _health; }
-            set { _health += value; }
-        }
-        public float Damage
-        {
-            get { return _damage; }
-            set { _damage += value; }
-        }
-        public string Name
-        {
-            get { return _name; }
-        }
-        public float Armor
-        {
-            get { return _armor; }
-            set { _armor += value; }
-        }
+        
         public void ShowRoundStatistic(float enemyFighterDamage)
         {
-            Console.WriteLine($"По персонажу {_name} нанесено " +
-                $"{enemyFighterDamage - (enemyFighterDamage * (_armor / 10))} " +
-                $"урона, у него осталось {_health} здоровья");
+            Console.WriteLine($"По персонажу {Name} нанесено " +
+                $"{enemyFighterDamage - (enemyFighterDamage * (Armor / 10))} " +
+                $"урона, у него осталось {Health} здоровья");
         }
+
+        public void ChangeHealth(float value) => Health += value;
+        public void ChangeArmor(float value) => Armor += value;
+        public void ChangeDamage(float value) => Damage += value;
     }
 }

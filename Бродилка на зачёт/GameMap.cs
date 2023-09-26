@@ -1,12 +1,4 @@
-﻿using HodimBrodim;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HodimBrodim
+﻿namespace HodimBrodim
 {
     public class GameMap
     {
@@ -22,6 +14,7 @@ namespace HodimBrodim
                 for (int y = 0; y < map.GetLength(1); y++)
                     map[x, y] = file[y][x];
             Map = map;
+
             DrawSymbolOnEmptyCell('A');
             DrawSymbolOnEmptyCell('D');
             DrawSymbolOnEmptyCell('H');
@@ -33,7 +26,6 @@ namespace HodimBrodim
             get => Map[point.X, point.Y];
             set => Map[point.X, point.Y] = value;
         }
-
         public static int GetMovesOnChoosenMap(int mapVariant)
         {
             MapID = mapVariant;
@@ -50,7 +42,23 @@ namespace HodimBrodim
                     return 300;
             }
         }
-        public void DrawSymbolOnEmptyCell(char symbol)
+        public void DrawMap()
+        {
+            Console.SetCursorPosition(0, 0);
+            for (int y = 0; y < Map.GetLength(1); y++)
+            {
+                for (int x = 0; x < Map.GetLength(0); x++)
+                {
+                    var currentSymbol = Map[x, y];
+                    Console.ForegroundColor = GetMapObjectsColor(currentSymbol);
+                    Console.Write(currentSymbol);
+                }
+                Console.WriteLine();
+            }
+        }
+        public void AddOneTreasure() => TreasuresOnTheMap++;
+        public bool IsNotWall(Point position) => this[position] != '|' && this[position] != '-';
+        private void DrawSymbolOnEmptyCell(char symbol)
         {
             while (true)
             {
@@ -64,51 +72,19 @@ namespace HodimBrodim
                 }
             }
         }
-        public void DrawMap(ConsoleColor color, ConsoleColor treasureColor)
-        {
-            Console.ForegroundColor = color;
-            Console.SetCursorPosition(0, 0);
-            for (int y = 0; y < Map.GetLength(1); y++)
-            {
-                for (int x = 0; x < Map.GetLength(0); x++)
-                {
-                    if (Map[x, y] == 'X')
-                    {
-                        Console.ForegroundColor = treasureColor;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    else if (Map[x, y] == 'A' || Map[x, y] == 'D' || Map[x, y] == 'H')
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    else if (Map[x, y] == '@')
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write(Map[x, y]);
-                        Console.ForegroundColor = color;
-                        continue;
-                    }
-                    Console.Write(Map[x, y]);
-                }
-                Console.WriteLine();
-            }
-        }
-        public void CountTreasures()
+        private void CountTreasures()
         {
             for (int i = 0; i < Map.GetLength(0); i++)
                 for (int j = 0; j < Map.GetLength(1); j++)
                     if (Map[i, j] == 'X')
                         TreasuresOnTheMap += 1;
         }
-        public void AddOneTreasure()
+        private ConsoleColor GetMapObjectsColor(char symbol) => symbol switch
         {
-            TreasuresOnTheMap++;
-        }
-        public bool IsEmptyCell(Point position) => this[position] != '|' && this[position] != '-';
+            'X' => ConsoleColor.Cyan,
+            'A' or 'D' or 'H' => ConsoleColor.DarkGreen,
+            '@' => ConsoleColor.Yellow,
+            _ => ConsoleColor.DarkYellow
+        };
     }
-}
+}   

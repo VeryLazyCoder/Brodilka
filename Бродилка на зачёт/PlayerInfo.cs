@@ -2,7 +2,7 @@
 
 namespace HodimBrodim
 {
-    public class PlayerInfo
+    public class PlayerInfo//todo: вынести имя, счёт и время в отдельную структуру
     {
         private string _name;
         private int _score;

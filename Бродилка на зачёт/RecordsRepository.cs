@@ -2,14 +2,14 @@
 
 namespace HodimBrodim
 {
-    public static class ReckordsRepository
+    public static class RecordsRepository
     {
         private static int _maxID;
         private static int _mapID;
-        private static List<UserData> _userReckords = new();
+        private static List<UserData> _userRecords = new();
         private static string connectionString =
             @"Data Source=.\SQLEXPRESS;Initial Catalog=Reckords;Integrated Security=True";
-        public static void LoadReckords(int mapID)
+        public static void LoadRecords(int mapID)
         {
             _mapID = mapID;
             using SqlConnection connection = new(connectionString);
@@ -19,13 +19,13 @@ namespace HodimBrodim
             using SqlCommand command = new(sqlQuery, connection);
             using SqlDataReader reader = command.ExecuteReader();
 
-            _userReckords = new List<UserData>();
+            _userRecords = new List<UserData>();
             while (reader.Read())
             {
                 string name = (string)reader["Nickname"];
                 int score = (int)reader["Score"];
                 DateTime date = (DateTime)reader["ScoreDate"];
-                _userReckords.Add(new UserData(name, score, date));
+                _userRecords.Add(new UserData(name, score, date));
             }
             reader.Close();
 
@@ -43,36 +43,44 @@ namespace HodimBrodim
             using SqlCommand insertCommand = new(insertQuery, connection);
             insertCommand.ExecuteNonQuery();
 
-            _userReckords.Add(newRow);          
-            _userReckords = _userReckords.OrderBy(x => x.Score).ToList();
+            _userRecords.Add(newRow);          
+            _userRecords = _userRecords.OrderBy(x => x.Score).ToList();
 
             _maxID++;
             connection.Close();
         }
 
-        public static void AddRecords(int playerScore)
+        public static void OfferAddRecord(int playerScore)
         {
             ShowRecordsTable();
             Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого нажмите 'y')");
 
             if (Console.ReadKey(true).Key == ConsoleKey.Y)
             {
-                Console.WriteLine("Введите ваше имя ");
-                var nameOfPlayer = Console.ReadLine()?? "пожелавший остаться неизвестным";
-                UpdateBase(new UserData(nameOfPlayer, playerScore, DateTime.Now));
+                AddUserRecord(playerScore);
             }
 
             Console.WriteLine("Чтобы увидеть обновлённую таблицу нажмите 'R'");
-            if (Console.ReadKey(true).Key == ConsoleKey.Y)
+            if (Console.ReadKey(true).Key == ConsoleKey.R)
                 ShowRecordsTable();
         }
+
+        private static void AddUserRecord(int playerScore)
+        {
+            Console.WriteLine("Введите ваше имя ");
+            var nameOfPlayer = Console.ReadLine();
+            if (nameOfPlayer.Trim().Length == 0)
+                nameOfPlayer = "пожелавший остаться неизвестным";
+            UpdateBase(new UserData(nameOfPlayer, playerScore, DateTime.Now));
+        }
+
         public static void ShowRecordsTable()
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Clear();
             Console.WriteLine("Таблица рекордов\n");
 
-            _userReckords.ForEach(user => Console.WriteLine(user));
+            _userRecords.ForEach(user => Console.WriteLine(user));
 
             Console.ReadKey();
             Console.Clear();

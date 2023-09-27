@@ -60,7 +60,7 @@
 
                 var pressedKey = Console.ReadKey(true);
                 if (pressedKey.Key == ConsoleKey.R)
-                    ReckordsRepository.ShowRecordsTable();
+                    RecordsRepository.ShowRecordsTable();
                 if (!IsValidTurn(pressedKey))
                     continue;
 

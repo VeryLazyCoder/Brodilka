@@ -13,7 +13,7 @@ namespace HodimBrodim
             Console.CursorVisible = false;
 
             var startMoves = GameMap.GetMovesOnChoosenMap(_mapVariant);
-            ReckordsRepository.LoadReckords(_mapVariant);
+            RecordsRepository.LoadRecords(_mapVariant);
             var wannaPlay = true;
             
             while (wannaPlay)
@@ -26,7 +26,7 @@ namespace HodimBrodim
                 {                   
                     var userScore = roundResult.userScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
-                    ReckordsRepository.AddRecords(userScore);
+                    RecordsRepository.OfferAddRecord(userScore);
                 }
                 else
                     Console.WriteLine($"Вы не справились, игра окончена");

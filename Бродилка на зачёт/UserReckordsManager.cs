@@ -2,17 +2,17 @@
 
 namespace HodimBrodim
 {
-    public class PlayerInfo
+    public class UserReckordsManager
     {
         private string _name;
         private int _score;
         private DateTime _date;
 
         private static int _maxID;
-        private static List<PlayerInfo> playerInfo = new List<PlayerInfo>();
+        private static List<UserReckordsManager> _userReckords = new List<UserReckordsManager>();
         private static string connectionString =
             @"Data Source=.\SQLEXPRESS;Initial Catalog=Reckords;Integrated Security=True";
-        private PlayerInfo(string name, int score, DateTime date)
+        private UserReckordsManager(string name, int score, DateTime date)
         {
             _name = name;
             _score = score;
@@ -28,13 +28,13 @@ namespace HodimBrodim
             using SqlCommand command = new(sqlQuery, connection);
             using SqlDataReader reader = command.ExecuteReader();
 
-            playerInfo = new List<PlayerInfo>();
+            _userReckords = new List<UserReckordsManager>();
             while (reader.Read())
             {
                 string name = (string)reader["Nickname"];
                 int score = (int)reader["Score"];
                 DateTime date = (DateTime)reader["ScoreDate"];
-                playerInfo.Add(new PlayerInfo(name, score, date));
+                _userReckords.Add(new UserReckordsManager(name, score, date));
             }
             reader.Close();
 
@@ -42,7 +42,7 @@ namespace HodimBrodim
             _maxID = (int)(command.ExecuteScalar() ?? 1);
         }
 
-        private static void UpdateBase(int mapID, PlayerInfo newRow)
+        private static void UpdateBase(int mapID, UserReckordsManager newRow)
         {
             using SqlConnection connection = new(connectionString);
             connection.Open();
@@ -52,8 +52,8 @@ namespace HodimBrodim
             using SqlCommand insertCommand = new(insertQuery, connection);
             insertCommand.ExecuteNonQuery();
 
-            playerInfo.Add(newRow);          
-            playerInfo = playerInfo.OrderBy(x => x._score).ToList();
+            _userReckords.Add(newRow);          
+            _userReckords = _userReckords.OrderBy(x => x._score).ToList();
 
             _maxID++;
             connection.Close();
@@ -69,7 +69,7 @@ namespace HodimBrodim
             {
                 Console.WriteLine("Введите ваше имя ");
                 string nameOfPlayer = Console.ReadLine();
-                UpdateBase(mapID, new PlayerInfo(nameOfPlayer, playerScore, DateTime.Now));
+                UpdateBase(mapID, new UserReckordsManager(nameOfPlayer, playerScore, DateTime.Now));
             }
 
             Console.WriteLine("Чтобы увидеть обновлённую таблицу нажмите 'R'");
@@ -84,7 +84,7 @@ namespace HodimBrodim
                 Console.Clear();
                 Console.WriteLine("Таблица рекордов\n");
 
-                foreach (var player in playerInfo)
+                foreach (var player in _userReckords)
                     Console.WriteLine($"Игрок {player._name} победил за {player._score} ходов." +
                         $" Рекорд был установлен {player._date}");
 

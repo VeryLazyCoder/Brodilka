@@ -4,22 +4,21 @@ namespace HodimBrodim
 {
     public class Program
     {
-        private static string[] _agreementWords = { "да", "lf", "fl", "ад", "yes", "y"};
+        private static int _mapVariant;
+        private static int _numberOfEnemies;
         static void Main(string[] args)
         {
-            var playersChoice = RecieveFromPlayerGameParametres();
-            var mapVariant = playersChoice.mapVariant;
-            var numberOfEnemies = playersChoice.numberOfEnemies;
+            SetGameParameters();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
 
-            var startMoves = GameMap.GetMovesOnChoosenMap(mapVariant);
-            PlayerInfo.LoadReckords(mapVariant);
+            var startMoves = GameMap.GetMovesOnChoosenMap(_mapVariant);
+            UserReckordsManager.LoadReckords(_mapVariant);
             var wannaPlay = true;
             
             while (wannaPlay)
             {
-                var roundResult = new GameRound(startMoves, numberOfEnemies).StartGame();
+                var roundResult = new GameRound(startMoves, _numberOfEnemies).StartGame();
                 var isRoundWin = roundResult.isWinResult;
 
                 Console.Clear();
@@ -27,7 +26,7 @@ namespace HodimBrodim
                 {                   
                     var userScore = roundResult.userScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
-                    PlayerInfo.AddRecords(mapVariant, userScore);
+                    UserReckordsManager.AddRecords(_mapVariant, userScore);
                 }
                 else
                     Console.WriteLine($"Вы не справились, игра окончена");
@@ -75,24 +74,16 @@ namespace HodimBrodim
             Console.WriteLine("\n\nЕсли вы готовы, нажмите любую кнопку и вперёд!");
             Console.ReadKey();
         }
-        public static (int mapVariant, int numberOfEnemies) RecieveFromPlayerGameParametres()
+        public static void SetGameParameters()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
-            Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
-                "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");
-            Console.WriteLine("Количество противников: 2, 4, либо 6. Любое другое число и соперников будет 6");
-            Regex magicThing = new Regex(@"\d+\s\d+");
+            GiveMapConfigurationInfo();
+            var inputPattern = new Regex(@"\d+\s\d+");
             while (true)
             {
                 try
                 {
-                    string userInput = Console.ReadLine();
-                    var numbers = magicThing.Matches(userInput);
-                    if (numbers.Count != 1)
-                        throw new Exception();
-                    return (int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]),
-                    int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]));
+                    ConfigurateMapAccordingPlayersChoice(inputPattern);
+                    break;
                 }
                 catch (Exception)
                 {
@@ -113,6 +104,24 @@ namespace HodimBrodim
                     return position;
             }
         }       
+
+        private static void ConfigurateMapAccordingPlayersChoice(Regex inputPattern)
+        {
+            string userInput = Console.ReadLine();
+            var numbers = inputPattern.Matches(userInput);
+            if (numbers.Count != 1)
+                throw new Exception();
+            _mapVariant = int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]);
+            _numberOfEnemies =  int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]);
+        }
+        private static void GiveMapConfigurationInfo()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
+            Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
+                "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");
+            Console.WriteLine("Количество противников: 2, 4, либо 6. Любое другое число и соперников будет 6");
+        }
         private static bool IsRestart()
         {
             Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");

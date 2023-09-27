@@ -51,16 +51,16 @@
             _player = new Player(Program.GetEmptyPosition(_map), _startMoves);
         }
 
-        public (int userScore, bool isWinResult) StartGame()
+        public (int userScore, bool isWinResult) StartGameLoop()
         {
             Console.Clear();
             while (true)
             {
                 DisplayGameObjects();
 
-                ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-                UserReckordsManager.ShowRecordsTable(pressedKey);
-
+                var pressedKey = Console.ReadKey(true);
+                if (pressedKey.Key == ConsoleKey.R)
+                    ReckordsRepository.ShowRecordsTable();
                 if (!IsValidTurn(pressedKey))
                     continue;
 
@@ -106,8 +106,6 @@
         private List<IEnemy> GetEnemies(int enemyCount)
         {
             var enemies = new List<IEnemy>();
-            //if (enemyCount <= 0 || enemyCount >= 10)
-            //    throw new ArgumentOutOfRangeException(nameof(enemyCount));
 
             for (int i = 0; i < enemyCount; i++)
             {

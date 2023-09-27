@@ -13,12 +13,12 @@ namespace HodimBrodim
             Console.CursorVisible = false;
 
             var startMoves = GameMap.GetMovesOnChoosenMap(_mapVariant);
-            UserReckordsManager.LoadReckords(_mapVariant);
+            ReckordsRepository.LoadReckords(_mapVariant);
             var wannaPlay = true;
             
             while (wannaPlay)
             {
-                var roundResult = new GameRound(startMoves, _numberOfEnemies).StartGame();
+                var roundResult = new GameRound(startMoves, _numberOfEnemies).StartGameLoop();
                 var isRoundWin = roundResult.isWinResult;
 
                 Console.Clear();
@@ -26,7 +26,7 @@ namespace HodimBrodim
                 {                   
                     var userScore = roundResult.userScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
-                    UserReckordsManager.AddRecords(_mapVariant, userScore);
+                    ReckordsRepository.AddRecords(userScore);
                 }
                 else
                     Console.WriteLine($"Вы не справились, игра окончена");
@@ -49,6 +49,48 @@ namespace HodimBrodim
             Console.ForegroundColor = color;
             Console.Write(stringToWrite);
             Console.ForegroundColor = defaultcolor;
+        }
+        public static void CloseGame()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Environment.Exit(0);
+        }
+        public static Point GetEmptyPosition(GameMap map)
+        {
+            var rand = new Random();
+            while (true)
+            {
+                var position = new Point(rand.Next(0, map.Map.GetLength(0)),
+                    rand.Next(0, map.Map.GetLength(1)));
+
+                if (map[position] == ' ')
+                    return position;
+            }
+        }       
+
+        private static void ConfigurateMapAccordingPlayersChoice(Regex inputPattern)
+        {
+            string userInput = Console.ReadLine();
+            var numbers = inputPattern.Matches(userInput);
+            if (numbers.Count != 1)
+                throw new Exception();
+            _mapVariant = int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]);
+            _numberOfEnemies =  int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]);
+        }
+        private static void GiveMapConfigurationInfo()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
+            Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
+                "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");
+            Console.WriteLine("Количество противников: 2, 4, либо 6. Любое другое число и соперников будет 6");
+        }
+        private static bool IsRestart()
+        {
+            Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");
+            return Console.ReadKey().Key == ConsoleKey.Y;
         }
         public static void GiveAdviceToPlayer()
         {
@@ -91,48 +133,6 @@ namespace HodimBrodim
                         "Повторите ввод");
                 }
             }
-        }
-        public static Point GetEmptyPosition(GameMap map)
-        {
-            var rand = new Random();
-            while (true)
-            {
-                var position = new Point(rand.Next(0, map.Map.GetLength(0)),
-                    rand.Next(0, map.Map.GetLength(1)));
-
-                if (map[position] == ' ')
-                    return position;
-            }
-        }       
-
-        private static void ConfigurateMapAccordingPlayersChoice(Regex inputPattern)
-        {
-            string userInput = Console.ReadLine();
-            var numbers = inputPattern.Matches(userInput);
-            if (numbers.Count != 1)
-                throw new Exception();
-            _mapVariant = int.Parse(Convert.ToString(numbers[0]).Split(" ")[0]);
-            _numberOfEnemies =  int.Parse(Convert.ToString(numbers[0]).Split(" ")[1]);
-        }
-        private static void GiveMapConfigurationInfo()
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
-            Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
-                "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");
-            Console.WriteLine("Количество противников: 2, 4, либо 6. Любое другое число и соперников будет 6");
-        }
-        private static bool IsRestart()
-        {
-            Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");
-            return Console.ReadKey().Key == ConsoleKey.Y;
-        }
-        public static void CloseGame()
-        {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
-            Environment.Exit(0);
         }
     }
 }

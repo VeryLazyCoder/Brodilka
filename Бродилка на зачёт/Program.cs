@@ -57,18 +57,6 @@ namespace HodimBrodim
             Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
             Environment.Exit(0);
         }
-        public static Point GetEmptyPosition(GameMap map)
-        {
-            var rand = new Random();
-            while (true)
-            {
-                var position = new Point(rand.Next(0, map.Map.GetLength(0)),
-                    rand.Next(0, map.Map.GetLength(1)));
-
-                if (map[position] == ' ')
-                    return position;
-            }
-        }       
 
         private static void ConfigurateMapAccordingPlayersChoice(Regex inputPattern)
         {
@@ -90,7 +78,7 @@ namespace HodimBrodim
         private static bool IsRestart()
         {
             Console.WriteLine("Хотите улучшить результат? Нажмите 'y'");
-            return Console.ReadKey().Key == ConsoleKey.Y;
+            return Console.ReadKey(true).Key == ConsoleKey.Y;
         }
         public static void GiveAdviceToPlayer()
         {

@@ -56,9 +56,7 @@ namespace HodimBrodim
             Console.WriteLine($"Хотите внести свой результат ({playerScore} ходов) в таблицу? (для этого нажмите 'y')");
 
             if (Console.ReadKey(true).Key == ConsoleKey.Y)
-            {
                 AddUserRecord(playerScore);
-            }
 
             Console.WriteLine("Чтобы увидеть обновлённую таблицу нажмите 'R'");
             if (Console.ReadKey(true).Key == ConsoleKey.R)

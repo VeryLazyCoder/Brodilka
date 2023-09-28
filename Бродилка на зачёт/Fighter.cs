@@ -35,8 +35,8 @@
                 $"урона, у него осталось {Health} здоровья");
         }
 
-        public void ChangeHealth(float value) => Health += value;
-        public void ChangeArmor(float value) => Armor += value;
-        public void ChangeDamage(float value) => Damage += value;
+        public void ChangeHealthFor(float value) => Health += value;
+        public void ChangeArmorFor(float value) => Armor += value;
+        public void ChangeDamageFor(float value) => Damage += value;
     }
 }

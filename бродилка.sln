@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brodilka", "Бродилк�
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrolilkaShould", "BrolilkaShould\BrolilkaShould.csproj", "{847C2F92-7DA6-4266-A985-D1C6BD8E722A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrodilkaManualTesting", "BrodilkaManualTesting\BrodilkaManualTesting.csproj", "{A3B51943-0904-46D2-956D-38B768B76DD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{847C2F92-7DA6-4266-A985-D1C6BD8E722A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3B51943-0904-46D2-956D-38B768B76DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3B51943-0904-46D2-956D-38B768B76DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3B51943-0904-46D2-956D-38B768B76DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3B51943-0904-46D2-956D-38B768B76DD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -56,8 +56,25 @@
                 Console.WriteLine();
             }
         }
-        public void AddOneTreasure() => TreasuresOnTheMap++;
+        public void AddAdditionalTreasure()
+        {
+            this[GetEmptyPosition()] = 'X';
+            TreasuresOnTheMap++;
+        }
         public bool IsNotWall(Point position) => this[position] != '|' && this[position] != '-';
+        public Point GetEmptyPosition()
+        {
+            var random = new Random();
+            while (true)
+            {
+                var position = new Point(random.Next(Map.GetLength(0)),
+                    random.Next(Map.GetLength(1)));
+
+                if (this[position] == ' ')
+                    return position;
+            }
+        }
+
         private void DrawSymbolOnEmptyCell(char symbol)
         {
             while (true)

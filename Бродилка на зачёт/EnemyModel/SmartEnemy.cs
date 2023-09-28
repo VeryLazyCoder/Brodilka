@@ -32,7 +32,7 @@ namespace HodimBrodim
 
         public void Move(Point playerPosition)
         {           
-            FillTrackToPlayer(playerPosition);
+            FormPathToPlayer(playerPosition);
             (_previousPosition, _position) = (_position, GetNextPointToPlayer(playerPosition));
         }
         public void Display()
@@ -56,7 +56,7 @@ namespace HodimBrodim
             path.Reverse();
             return path.Count > 1 ? path[1] : _position;
         }
-        private void FillTrackToPlayer(Point playerPosition)
+        private void FormPathToPlayer(Point playerPosition)
         {
             _track.Clear();
             _track[_startPointForBFS] = _nullPoint;

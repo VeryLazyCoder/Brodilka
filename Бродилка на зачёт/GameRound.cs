@@ -4,10 +4,20 @@
     {
         public Player Player { get; private set; }
         public GameMap Map { get; private set; }
+        public bool? IsWon { get; private set; }
+        public int UserScore { get; private set; }
 
-        private int _startMoves;
+        private readonly int _startMoves;
         private readonly int _initialEnemisCount;
-        private Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
+        private readonly HashSet<ConsoleKey> _validKeys = new()
+        {
+            ConsoleKey.W,
+            ConsoleKey.A,
+            ConsoleKey.D,
+            ConsoleKey.S,
+            ConsoleKey.Spacebar,
+        };
+        private readonly Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
         {
             ['X'] = (player, map) =>
             {
@@ -34,15 +44,8 @@
             [' '] = (player, map) => { },
         };
         private List<IEnemy> _enemies;
-        private readonly HashSet<ConsoleKey> _validKeys = new()
-        {
-            ConsoleKey.W,
-            ConsoleKey.A,
-            ConsoleKey.D,
-            ConsoleKey.S,
-            ConsoleKey.Spacebar,
-        };
         private RandomEventsHandler _eventHandler;
+        private ConsoleKey _pressedKey;
 
         public GameRound(int startMoves, int enemyCount)
         {
@@ -54,39 +57,52 @@
             _eventHandler = new();
         }
 
-        public (int userScore, bool isWinResult) StartGameLoop()
+        public void StartGameLoop()
         {
             Console.Clear();
-            while (true)
+            while (IsWon == null)
             {
                 DisplayGameObjects();
 
-                var pressedKey = Console.ReadKey(true);
-                if (pressedKey.Key == ConsoleKey.R)
-                    RecordsRepository.ShowRecordsTable();
-                if (!IsValidTurn(pressedKey))
-                    continue;
+                _pressedKey = Console.ReadKey(true).Key;
 
-                Player.Move(pressedKey, Map);
-                MoveEnemies();
+                if (IsRelevantTurn())
+                    ChangeGameState();
 
-                _eventHandler.TryRaiseEvent(this);
-                _actionsOnCollision[Map[Player.Position]].Invoke(Player, Map);
-
-                if (Player.TreasureCount == Map.TreasuresOnTheMap ||
-                    (_enemies.Count == 0 && _initialEnemisCount != 0))
-                    break;
-
-                if (Player.MovesAvailable <= 0 || Player.PlayerIsDead == true)
-                    return (-1, false);
+                SetRoundResultIfGameIsOver();
             }
-            return (_startMoves - Player.MovesAvailable, true);
         }
-        public void AddAdditionalEnemy() => 
-            _enemies.Add(new CommomEnemy(Map.GetEmptyPosition(), Map));
 
+        private void SetRoundResultIfGameIsOver()
+        {
+            if (IsVictoryAchieved())
+                (IsWon, UserScore) = (true, _startMoves - Player.MovesAvailable);
+
+            if (Player.IsDead)
+                (IsWon, UserScore) = (false, -1);
+        }
+        private bool IsVictoryAchieved()
+        {
+            return Player.TreasureCount == Map.TreasuresOnTheMap ||
+                (_enemies.Count == 0 && _initialEnemisCount != 0);
+        }
+        private void ChangeGameState()
+        {
+            Player.Move(_pressedKey, Map);
+            MoveEnemies();
+            _eventHandler.TryRaiseEvent(this);
+            _actionsOnCollision[Map[Player.Position]].Invoke(Player, Map);
+        }
+        private void DisplayRecordsIfNecessary()
+        {
+            if (_pressedKey == ConsoleKey.R)
+                RecordsRepository.ShowRecordsTable();
+        }
+        public void AddAdditionalEnemy() =>
+            _enemies.Add(new CommomEnemy(Map.GetEmptyPosition(), Map));
         private void DisplayGameObjects()
         {
+            DisplayRecordsIfNecessary();
             Player.ShowPlayerStatistic();
             Map.DrawMap();
             DisplayEnemies();
@@ -123,19 +139,19 @@
             }
             return enemies;
         }
-        private IEnemy GetEnemy(Point point) => 
-            new Random().Next(3) == 0? new SmartEnemy(point, Map) : new CommomEnemy(point, Map);
+        private IEnemy GetEnemy(Point point) =>
+            new Random().Next(3) == 0 ? new SmartEnemy(point, Map) : new CommomEnemy(point, Map);
         private void DisplayCharacter()
         {
             Console.SetCursorPosition(Player.Position.X, Player.Position.Y);
             Program.Paint('T', ConsoleColor.Green);
         }
-        private bool IsValidTurn(ConsoleKeyInfo pressedKey)
+        private bool IsRelevantTurn()
         {
-            if (pressedKey.Key == ConsoleKey.Escape)           
+            if (_pressedKey == ConsoleKey.Escape)
                 Program.CloseGame();
-            
-            return _validKeys.Contains(pressedKey.Key);
+
+            return _validKeys.Contains(_pressedKey);
         }
     }
 }

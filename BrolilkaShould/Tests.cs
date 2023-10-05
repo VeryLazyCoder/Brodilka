@@ -29,8 +29,7 @@ namespace BrolilkaShould
             var map = new GameMap();
             var player = new Player(_startPoint, _startMoves);
 
-            var key = new ConsoleKeyInfo(pressedKey.ToString()[0], pressedKey, false, false, false);
-            player.Move(key, map);
+            player.Move(pressedKey, map);
             Assert.AreEqual(player.Position == _startPoint, player.MovesAvailable == _startMoves);
         }
     }

@@ -68,7 +68,7 @@ namespace HodimBrodim
             Console.WriteLine("Введите ваше имя ");
             var nameOfPlayer = Console.ReadLine();
             if (nameOfPlayer.Trim().Length == 0)
-                nameOfPlayer = "пожелавший остаться неизвестным";
+                nameOfPlayer = "без имени";
             UpdateBase(new UserData(nameOfPlayer, playerScore, DateTime.Now));
         }
 

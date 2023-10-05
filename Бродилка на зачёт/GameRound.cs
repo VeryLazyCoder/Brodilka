@@ -72,6 +72,8 @@
                 SetRoundResultIfGameIsOver();
             }
         }
+        public void AddAdditionalEnemy() =>
+            _enemies.Add(new CommomEnemy(Map.GetEmptyPosition(), Map));
 
         private void SetRoundResultIfGameIsOver()
         {
@@ -98,8 +100,6 @@
             if (_pressedKey == ConsoleKey.R)
                 RecordsRepository.ShowRecordsTable();
         }
-        public void AddAdditionalEnemy() =>
-            _enemies.Add(new CommomEnemy(Map.GetEmptyPosition(), Map));
         private void DisplayGameObjects()
         {
             DisplayRecordsIfNecessary();

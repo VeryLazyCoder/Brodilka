@@ -58,7 +58,7 @@ namespace HodimBrodim
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Console.WriteLine("Зря вы покинули такую прекрасную игру :(");
             Environment.Exit(0);
         }
 

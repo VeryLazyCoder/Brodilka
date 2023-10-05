@@ -26,7 +26,7 @@
             Console.WriteLine("Введите клавишу");
             var userKey = Console.ReadKey(true);
 
-            player.Move(userKey, map);
+            player.Move(userKey.Key, map);
             if (player.Position != _startPoint && player.MovesAvailable != _startMoves)
             {
                 Console.ForegroundColor = ConsoleColor.Green;

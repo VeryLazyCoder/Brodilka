@@ -18,13 +18,17 @@ namespace HodimBrodim
             
             while (wannaPlay)
             {
-                var roundResult = new GameRound(startMoves, _numberOfEnemies).StartGameLoop();
-                var isRoundWin = roundResult.isWinResult;
+                var gameround = new GameRound(startMoves, _numberOfEnemies);
+                gameround.StartGameLoop();
 
                 Console.Clear();
-                if (isRoundWin)
+
+                if  (gameround.IsWon == null)
+                    throw new NullReferenceException();
+
+                if (gameround.IsWon.Value)
                 {                   
-                    var userScore = roundResult.userScore;
+                    var userScore = gameround.UserScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
                     RecordsRepository.OfferAddRecord(userScore);
                 }
@@ -54,7 +58,7 @@ namespace HodimBrodim
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("ZЗря вы покинули такую прекрасную игру :(");
+            Console.WriteLine("Зря вы покинули такую прекрасную игру :(");
             Environment.Exit(0);
         }
 

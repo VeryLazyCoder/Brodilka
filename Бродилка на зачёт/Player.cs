@@ -4,7 +4,7 @@
     {
         public Point Position { get; private set; }
         public int MovesAvailable { get; set; }
-        public bool PlayerIsDead { get; private set; }
+        public bool IsDead => MovesAvailable <= 0 || Health <= 0;
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _enemyFighters;
@@ -31,7 +31,7 @@
         {
             TreasureCount++;
         }
-        public void Move(ConsoleKeyInfo pressedKey, GameMap map)
+        public void Move(ConsoleKey pressedKey, GameMap map)
         {
             var offset = GetOffsetPoint(pressedKey);
            
@@ -79,11 +79,8 @@
         }
         private void ShowResult()
         {
-            if (Health <= 0)
-            {
-                PlayerIsDead = true;
+            if (IsDead)
                 Console.WriteLine("Вы проиграли");
-            }
             else
                 Console.WriteLine("Вы победили этого противника, пока что...");
 
@@ -136,7 +133,7 @@
                 random.Next(0, 11),
                 random.Next(0, int.MaxValue / 500), "Загадочный и непостижимый"));
         }
-        private Point GetOffsetPoint(ConsoleKeyInfo pressedKey) => pressedKey.Key switch
+        private Point GetOffsetPoint(ConsoleKey pressedKey) => pressedKey switch
         {
             ConsoleKey.W => new(0, -1),
             ConsoleKey.A => new(-1, 0),

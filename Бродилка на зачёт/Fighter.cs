@@ -5,9 +5,9 @@
         public float Health { get; protected set; }
         public float Damage { get; protected set; }
         public float Armor { get; protected set; }
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        private string _specialAbilities;
+        private readonly string _specialAbilities;
         public Fighter(string name, float health, float armor, float damage,
             string special = " отсутствуют")
         {

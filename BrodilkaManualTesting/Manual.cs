@@ -1,4 +1,6 @@
-﻿namespace HodimBrodim.Tests
+﻿using HodimBrodim;
+
+namespace BrodilkaManualTesting
 {
     internal class ManualTests
     {
@@ -6,7 +8,7 @@
         private static readonly int _startMoves = 100;
         public static void Main(string[] args)
         {
-            GameMap.GetMovesOnChoosenMap(1);
+            GameMap.GetMovesOnChosenMap(1);
 
             Console.WriteLine("Давайте проведём позитивный тест, введите правильную клавишу" +
                 "Игрок перемещается клавишами W,A,S,D при их нажатии количество ходов уменьшается");

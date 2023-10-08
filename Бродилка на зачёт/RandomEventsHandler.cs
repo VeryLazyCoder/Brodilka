@@ -1,10 +1,8 @@
-﻿using System.Numerics;
-
-namespace HodimBrodim
+﻿namespace HodimBrodim
 {
     public class RandomEventsHandler
     {
-        private List<Event> _events = new List<Event>()
+        private readonly List<Event> _events = new()
         {
             new Event("К вам пришла налоговая","вы не в состоянии думать ни о чём, кроме налогов. " +
                 "\nПропустите 5 ходов и платите налоги вовремя"),
@@ -17,7 +15,7 @@ namespace HodimBrodim
             new Event("Вы нашли совсем неподозрительную красную таблетку",
                 "Выпив её ваше здоровье почему-то уменьшилось"),
         };
-        private List<Action<GameRound>> _actions = new()
+        private readonly List<Action<GameRound>> _actions = new()
         {
             game => game.Player.MovesAvailable -= 5,
             game => game.Player.MovesAvailable += 5,
@@ -26,27 +24,19 @@ namespace HodimBrodim
             game => game.Player.ChangeHealthFor(25),
             game => game.Player.ChangeHealthFor(-15),
         };
+        private readonly Random _random = new();
         private int _eventNumber;
-        private Random _random;
-
-        public RandomEventsHandler()
-        {
-            _random = new Random();
-            _eventNumber = _random.Next(_events.Count);
-        }
 
         public bool TryRaiseEvent(GameRound round)
         {
-            if (_random.Next(35) == 22)
-            {
-                InvokeEvent(round);
-                return true;
-            }
-            return false;
+            if (_random.Next(35) != 22) return false;
+            InvokeEvent(round);
+            return true;
         }
 
         public void InvokeEvent(GameRound round)
         {
+            _eventNumber = _random.Next(_events.Count);
             DisplayEvent();
             _actions[_eventNumber].Invoke(round);
             Console.ReadKey();
@@ -65,7 +55,7 @@ namespace HodimBrodim
         }
     }
 
-    internal struct Event
+    internal readonly struct Event
     {
         public string Description { get; init; }
         public string Consequence { get; init; }

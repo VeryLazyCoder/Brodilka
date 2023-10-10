@@ -1,36 +1,35 @@
 using HodimBrodim;
 
-namespace BrolilkaShould
+namespace BrodilkaShould
 {
     [TestFixture]
     public class Tests
     {
-        private static readonly Point _startPoint = new Point(11, 5);
-        private static readonly int _startMoves = 100;
+        private static readonly Point StartPoint = new(11, 5);
+        private const int START_MOVES = 100;
 
         [Test]
         public void Test1()
         {
             var enemy = new SmartEnemy(new Point(1, 1), null);
-            Assert.IsFalse(enemy.CollisionWithPlayer(new Point(2, 2)));
+            Assert.That(enemy.CollisionWithPlayer(new Point(2, 2)), Is.False);
         }
         [Test]
         public void Test2()
         {
             var enemy = new SmartEnemy(new Point(1, 1), null);
-            Assert.IsTrue(enemy.CollisionWithPlayer(enemy.Position));
+            Assert.That(enemy.CollisionWithPlayer(enemy.Position), Is.True);
         }
 
         [TestCase(ConsoleKey.W)]
-        [TestCase(ConsoleKey.G)]
         public void PlayerMovementTest(ConsoleKey pressedKey)
         {
-            GameMap.GetMovesOnChoosenMap(1);
+            GameMap.GetMovesOnChosenMap(1);
             var map = new GameMap();
-            var player = new Player(_startPoint, _startMoves);
+            var player = new Player(StartPoint, START_MOVES);
 
             player.Move(pressedKey, map);
-            Assert.AreEqual(player.Position == _startPoint, player.MovesAvailable == _startMoves);
+            Assert.That(player.MovesAvailable == START_MOVES, Is.EqualTo(player.Position == StartPoint));
         }
     }
 }

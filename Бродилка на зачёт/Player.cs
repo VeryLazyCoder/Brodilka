@@ -8,17 +8,18 @@
         public int TreasureCount { get; private set; }
 
         private readonly List<Fighter> _enemyFighters;
+        private Random _random;
 
         public Player(Point position, int moves) : base("игрок", 150, 2, 25, "Хороший вопрос")
         {
-            Random rand = new Random();
+            _random = new Random();
             Position = position;
             MovesAvailable = moves;
 
             _enemyFighters = new List<Fighter>()
             {
-                new Fighter("Сумасшедший Маньяк", 200f + rand.Next(-20,21) ,
-            2 + rand.Next(-1,2), 75f + rand.Next(-7,8),
+                new Fighter("Сумасшедший Маньяк", 200f + _random.Next(-20,21) ,
+            2 + _random.Next(-1,2), 75f + _random.Next(-7,8),
                 "в зависимости от степени чесания головы меняет свои характеристики"),
                 new Fighter("Сын маминой подруги", 10f, 9.25f, 100f,"обладает сюжетной бронёй"),
                 new Fighter("Обезьяна", 500f, 2, 25f," мозгов нет, здоровья много"),
@@ -56,7 +57,7 @@
         }
         public void FightWithEnemy()
         {
-            Fighter enemyFighter = GetRandomEnemy();
+            var enemyFighter = GetRandomEnemy();
             ShowEnemyStats(enemyFighter);
             LaunchFight(enemyFighter);
             ShowResult();
@@ -70,19 +71,15 @@
 
         private Fighter GetRandomEnemy()
         {
-            Random random = new Random();
             if (_enemyFighters.Count <= 1)
                 AddSecretEnemies();
 
-            Fighter enemyFighter = _enemyFighters[random.Next(_enemyFighters.Count)];
+            var enemyFighter = _enemyFighters[_random.Next(_enemyFighters.Count)];
             return enemyFighter;
         }
         private void ShowResult()
         {
-            if (IsDead)
-                Console.WriteLine("Вы проиграли");
-            else
-                Console.WriteLine("Вы победили этого противника, пока что...");
+            Console.WriteLine(IsDead ? "Вы проиграли" : "Вы победили этого противника, пока что...");
 
             Console.WriteLine("Нажмите любую клавишу, чтобы продолжить\n");
             Console.ReadKey();
@@ -127,19 +124,19 @@
         }
         private void AddSecretEnemies()
         {
-            var random = new Random();
-            _enemyFighters.Add(new Fighter("Браго", int.MaxValue / 500, 0, int.MaxValue / 500, "Это Браго"));
-            _enemyFighters.Add(new Fighter("Мурад", random.Next(0, int.MaxValue / 500),
-                random.Next(0, 11),
-                random.Next(0, int.MaxValue / 500), "Загадочный и непостижимый"));
+            const int veryBigHealth = 4294967;
+            _enemyFighters.Add(new Fighter("Браго", veryBigHealth, 0, veryBigHealth, "Это Браго"));
+            _enemyFighters.Add(new Fighter("Мурад", _random.Next(0, veryBigHealth),
+                _random.Next(0, 11),
+                _random.Next(0, int.MaxValue / 500), "Загадочный и непостижимый"));
         }
-        private Point GetOffsetPoint(ConsoleKey pressedKey) => pressedKey switch
+        private static Point GetOffsetPoint(ConsoleKey pressedKey) => pressedKey switch
         {
-            ConsoleKey.W => new(0, -1),
-            ConsoleKey.A => new(-1, 0),
-            ConsoleKey.S => new(0, 1),
-            ConsoleKey.D => new(1, 0),
-            _ => new(0, 0)
+            ConsoleKey.W => new Point(0, -1),
+            ConsoleKey.A => new Point(-1, 0),
+            ConsoleKey.S => new Point(0, 1),
+            ConsoleKey.D => new Point(1, 0),
+            _ => new Point(0, 0)
         };
     }
 }

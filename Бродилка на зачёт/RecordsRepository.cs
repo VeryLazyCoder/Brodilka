@@ -7,24 +7,25 @@ namespace HodimBrodim
         private static int _maxID;
         private static int _mapID;
         private static List<UserData> _userRecords = new();
-        private static string connectionString =
+        private const string CONNECTION_STRING =
             @"Data Source=.\SQLEXPRESS;Initial Catalog=Reckords;Integrated Security=True";
+
         public static void LoadRecords(int mapID)
         {
             _mapID = mapID;
-            using SqlConnection connection = new(connectionString);
+            using SqlConnection connection = new(CONNECTION_STRING);
             connection.Open();
 
-            var sqlQuery = $"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
+            var sqlQuery = @$"SELECT TOP 10 * FROM Reckord where maptype = {mapID} ORDER BY Score ASC";
             using SqlCommand command = new(sqlQuery, connection);
-            using SqlDataReader reader = command.ExecuteReader();
+            using var reader = command.ExecuteReader();
 
             _userRecords = new List<UserData>();
             while (reader.Read())
             {
-                string name = (string)reader["Nickname"];
-                int score = (int)reader["Score"];
-                DateTime date = (DateTime)reader["ScoreDate"];
+                var name = (string)reader["Nickname"];
+                var score = (int)reader["Score"];
+                var date = (DateTime)reader["ScoreDate"];
                 _userRecords.Add(new UserData(name, score, date));
             }
             reader.Close();
@@ -35,11 +36,11 @@ namespace HodimBrodim
 
         private static void UpdateBase(UserData newRow)
         {
-            using SqlConnection connection = new(connectionString);
+            using SqlConnection connection = new(CONNECTION_STRING);
             connection.Open();
 
-            string insertQuery = $"insert into Reckord values ({_maxID + 1}, '{newRow.Name}', {newRow.Score}, " +
-                $"'{newRow.Date}', {_mapID})";
+            var insertQuery = @$"insert into Reckord values ({_maxID + 1}, '{newRow.Name}', {newRow.Score}, " +
+                              $"'{newRow.Date}', {_mapID})";
             using SqlCommand insertCommand = new(insertQuery, connection);
             insertCommand.ExecuteNonQuery();
 
@@ -85,7 +86,7 @@ namespace HodimBrodim
         }
     }
 
-    internal struct UserData
+    internal readonly struct UserData
     {
         public string Name { get; init; }
         public int Score { get; init; }

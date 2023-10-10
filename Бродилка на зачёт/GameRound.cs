@@ -2,13 +2,13 @@
 {
     public class GameRound
     {
-        public Player Player { get; private set; }
-        public GameMap Map { get; private set; }
+        public Player Player { get; }
+        public GameMap Map { get; }
         public bool? IsWon { get; private set; }
         public int UserScore { get; private set; }
 
         private readonly int _startMoves;
-        private readonly int _initialEnemisCount;
+        private readonly int _initialEnemiesCount;
         private readonly HashSet<ConsoleKey> _validKeys = new()
         {
             ConsoleKey.W,
@@ -43,18 +43,18 @@
             ['@'] = (player, map) => player.MovesAvailable -= 10,
             [' '] = (player, map) => { },
         };
-        private List<IEnemy> _enemies;
-        private RandomEventsHandler _eventHandler;
+        private readonly List<IEnemy> _enemies;
+        private readonly RandomEventsHandler _eventHandler;
         private ConsoleKey _pressedKey;
 
         public GameRound(int startMoves, int enemyCount)
         {
             _startMoves = startMoves;
-            _initialEnemisCount = enemyCount;
+            _initialEnemiesCount = enemyCount;
             Map = new GameMap();
             _enemies = GetEnemies(enemyCount);
             Player = new Player(Map.GetEmptyPosition(), _startMoves);
-            _eventHandler = new();
+            _eventHandler = new RandomEventsHandler();
         }
 
         public void StartGameLoop()
@@ -73,7 +73,7 @@
             }
         }
         public void AddAdditionalEnemy() =>
-            _enemies.Add(new CommomEnemy(Map.GetEmptyPosition(), Map));
+            _enemies.Add(new CommonEnemy(Map.GetEmptyPosition(), Map));
 
         private void SetRoundResultIfGameIsOver()
         {
@@ -86,7 +86,7 @@
         private bool IsVictoryAchieved()
         {
             return Player.TreasureCount == Map.TreasuresOnTheMap ||
-                (_enemies.Count == 0 && _initialEnemisCount != 0);
+                (_enemies.Count == 0 && _initialEnemiesCount != 0);
         }
         private void ChangeGameState()
         {
@@ -110,16 +110,15 @@
         }
         private void MoveEnemies()
         {
-            for (int i = 0; i < _enemies.Count; i++)
+            for (var i = 0; i < _enemies.Count; i++)
             {
                 _enemies[i].Move(Player.Position);
-                if (_enemies[i].CollisionWithPlayer(Player.Position))
-                {
-                    Player.FightWithEnemy();
-                    _enemies.RemoveAt(i);
-                    Map.DrawMap();
-                    break;
-                }
+                if (!_enemies[i].CollisionWithPlayer(Player.Position)) 
+                    continue;
+                Player.FightWithEnemy();
+                _enemies.RemoveAt(i);
+                Map.DrawMap();
+                break;
             }
         }
         private void DisplayEnemies() =>
@@ -128,19 +127,26 @@
         {
             var enemies = new List<IEnemy>();
 
-            for (int i = 0; i < enemyCount; i++)
+            for (var i = 0; i < enemyCount; i++)
             {
-                if (i == 2)
-                    enemies.Add(GetEnemy(new Point(Map.Map.GetLength(0) - 2, Map.Map.GetLength(1) - 2)));
-                else if (i == 3)
-                    enemies.Add(GetEnemy(new(1, 1)));
-                else
-                    enemies.Add(GetEnemy(Map.GetEmptyPosition()));
+                switch (i)
+                {
+                    case 2:
+                        enemies.Add(GetEnemy(new Point(Map.Map.GetLength(0) - 2, 
+                            Map.Map.GetLength(1) - 2)));
+                        break;
+                    case 3:
+                        enemies.Add(GetEnemy(new Point(1, 1)));
+                        break;
+                    default:
+                        enemies.Add(GetEnemy(Map.GetEmptyPosition()));
+                        break;
+                }
             }
             return enemies;
         }
         private IEnemy GetEnemy(Point point) =>
-            new Random().Next(3) == 0 ? new SmartEnemy(point, Map) : new CommomEnemy(point, Map);
+            new Random().Next(3) == 0 ? new SmartEnemy(point, Map) : new CommonEnemy(point, Map);
         private void DisplayCharacter()
         {
             Console.SetCursorPosition(Player.Position.X, Player.Position.Y);

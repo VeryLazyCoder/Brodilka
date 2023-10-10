@@ -6,29 +6,30 @@ namespace HodimBrodim
     {
         private static int _mapVariant;
         private static int _numberOfEnemies;
-        static void Main(string[] args)
+
+        private static void Main()
         {
             SetGameParameters();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
 
-            var startMoves = GameMap.GetMovesOnChoosenMap(_mapVariant);
+            var startMoves = GameMap.GetMovesOnChosenMap(_mapVariant);
             RecordsRepository.LoadRecords(_mapVariant);
             var wannaPlay = true;
             
             while (wannaPlay)
             {
-                var gameround = new GameRound(startMoves, _numberOfEnemies);
-                gameround.StartGameLoop();
+                var gameRound = new GameRound(startMoves, _numberOfEnemies);
+                gameRound.StartGameLoop();
 
                 Console.Clear();
 
-                if  (gameround.IsWon == null)
+                if  (gameRound.IsWon == null)
                     throw new NullReferenceException();
 
-                if (gameround.IsWon.Value)
+                if (gameRound.IsWon.Value)
                 {                   
-                    var userScore = gameround.UserScore;
+                    var userScore = gameRound.UserScore;
                     Console.WriteLine($"Вы победиди за {userScore} ходов, поздравляю!!!");
                     RecordsRepository.OfferAddRecord(userScore);
                 }
@@ -42,17 +43,17 @@ namespace HodimBrodim
 
         public static void Paint(char symbol, ConsoleColor color)
         {
-            ConsoleColor defaultcolor = Console.ForegroundColor;
+            ConsoleColor defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.Write(symbol);
-            Console.ForegroundColor = defaultcolor;
+            Console.ForegroundColor = defaultColor;
         }
         public static void Paint(string stringToWrite, ConsoleColor color)
         {
-            ConsoleColor defaultcolor = Console.ForegroundColor;
+            ConsoleColor defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.Write(stringToWrite);
-            Console.ForegroundColor = defaultcolor;
+            Console.ForegroundColor = defaultColor;
         }
         public static void CloseGame()
         {
@@ -62,9 +63,9 @@ namespace HodimBrodim
             Environment.Exit(0);
         }
 
-        private static void ConfigurateMapAccordingPlayersChoice(Regex inputPattern)
+        private static void ConfigureMapAccordingPlayersChoice(Regex inputPattern)
         {
-            string userInput = Console.ReadLine();
+            var userInput = Console.ReadLine();
             var numbers = inputPattern.Matches(userInput);
             if (numbers.Count != 1)
                 throw new Exception();
@@ -74,8 +75,8 @@ namespace HodimBrodim
         private static void GiveMapConfigurationInfo()
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Введите пару чисел через пробел - размер карты и количество противников");
-            Console.WriteLine("Выберите размер карты:\n1 - маленькая \n2 - средняя" +
+            Console.WriteLine(@"Введите пару чисел через пробел - размер карты и количество противников");
+            Console.WriteLine(@"Выберите размер карты:\n1 - маленькая \n2 - средняя" +
                 "\n3 - большая, \nВнимание!!! Eсли введёте что-то другое придётся играть на большой карте");
             Console.WriteLine("Количество противников: 2, 4, либо 6. Любое другое число и соперников будет 6");
         }
@@ -88,7 +89,7 @@ namespace HodimBrodim
         {
             Console.Clear();
             Console.WriteLine("Краткая справка:\n");
-            Console.WriteLine($"Добро пожаловать в тестовую бродилку. Ваш персонаж обозначен буквой Т" +
+            Console.WriteLine(@$"Добро пожаловать в тестовую бродилку. Ваш персонаж обозначен буквой Т" +
             "\nЧтобы двигаться вверх нажмите W, вниз S, вправо D, а влево A. " +
             "\nНо берегитесь врагов, обозначенных '!' " +
             "\nДля выхода нажмите Esc");
@@ -116,7 +117,7 @@ namespace HodimBrodim
             {
                 try
                 {
-                    ConfigurateMapAccordingPlayersChoice(inputPattern);
+                    ConfigureMapAccordingPlayersChoice(inputPattern);
                     break;
                 }
                 catch (Exception)

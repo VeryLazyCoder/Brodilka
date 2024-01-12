@@ -15,7 +15,7 @@
                     map[x, y] = file[y][x];
             Map = map;
 
-            DrawSymbolOnEmptyCell('A');
+            DrawSymbolOnEmptyCell('A');  
             DrawSymbolOnEmptyCell('D');
             DrawSymbolOnEmptyCell('H');
             CountTreasures();

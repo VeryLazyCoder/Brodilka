@@ -6,14 +6,14 @@ namespace HodimBrodim
     {
         private Point _position;
         private Point _previousPosition;
-        private Dictionary<Point, Point> _track;
+        private readonly Dictionary<Point, Point> _track;
         private readonly GameMap _map;
         private readonly Point[] _offsetPoints;
         private readonly Point _nullPoint = new(-1, -1);
 
         public Point Position => _position;
         public Point PreviousPosition => _previousPosition;
-        private Point _startPointForBFS => _position;
+        private Point StartPointForBfs => _position;
 
         public SmartEnemy(Point position, GameMap map)
         {
@@ -59,10 +59,10 @@ namespace HodimBrodim
         private void FormPathToPlayer(Point playerPosition)
         {
             _track.Clear();
-            _track[_startPointForBFS] = _nullPoint;
+            _track[StartPointForBfs] = _nullPoint;
             var visited = new HashSet<Point>();
             var pointQueue = new Queue<Point>();
-            pointQueue.Enqueue(_startPointForBFS);
+            pointQueue.Enqueue(StartPointForBfs);
 
             while (pointQueue.Count != 0)
             {

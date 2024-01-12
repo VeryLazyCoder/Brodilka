@@ -47,7 +47,7 @@
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("Случилось страшное!? вращайте барабан...");
+            Console.WriteLine(@"Случилось страшное!? вращайте барабан...");
             Console.ReadKey(true);
             Console.SetCursorPosition(0, 1);
             Console.WriteLine(_events[_eventNumber]);

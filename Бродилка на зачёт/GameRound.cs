@@ -51,7 +51,7 @@
         {
             _startMoves = startMoves;
             _initialEnemiesCount = enemyCount;
-            Map = new GameMap();
+            Map = MapCreator.CreateMap(startMoves);
             _enemies = GetEnemies(enemyCount);
             Player = new Player(Map.GetEmptyPosition(), _startMoves);
             _eventHandler = new RandomEventsHandler();

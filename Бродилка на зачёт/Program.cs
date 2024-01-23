@@ -13,7 +13,7 @@ namespace HodimBrodim
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
 
-            var startMoves = GameMap.GetMovesOnChosenMap(_mapVariant);
+            var startMoves = GetMovesOnMapAmount();
             RecordsRepository.LoadRecords(_mapVariant);
             var wannaPlay = true;
             
@@ -127,5 +127,12 @@ namespace HodimBrodim
                 }
             }
         }
+
+        private static int GetMovesOnMapAmount() => _mapVariant switch
+        {
+            1 => 120,
+            2 => 160,
+            _ => 300
+        };
     }
 }

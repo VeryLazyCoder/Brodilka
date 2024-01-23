@@ -3,7 +3,6 @@
     public class MapCreator
     {
         private static char[,] _map;
-        private static string _pathToMap;
         public static GameMap CreateMap(int availableMovesOnMap)
         {
             var file = File.ReadAllLines(GetMapPathAccordingChosenMoves(availableMovesOnMap));

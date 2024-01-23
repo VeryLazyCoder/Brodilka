@@ -4,6 +4,7 @@
     {
         public readonly char[,] Map;
         public int TreasuresOnTheMap { get; private set; }
+
         public GameMap(char[,] map)
         {
             Map = map;

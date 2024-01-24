@@ -2,16 +2,16 @@
 {
     public class GameMap
     {
-        public readonly char[,] Map;
+        public MapCell[,] Map { get; }
         public int TreasuresOnTheMap { get; private set; }
 
-        public GameMap(char[,] map)
+        public GameMap(MapCell[,] map)
         {
             Map = map;
             CountTreasures();
         }
 
-        public char this[Point point]
+        public MapCell this[Point point]
         {
             get => Map[point.X, point.Y];
             set => Map[point.X, point.Y] = value;
@@ -26,7 +26,7 @@
                 {
                     var currentSymbol = Map[x, y];
                     Console.ForegroundColor = GetMapObjectsColor(currentSymbol);
-                    Console.Write(currentSymbol);
+                    Console.Write((char)currentSymbol);
                 }
                 Console.WriteLine();
             }
@@ -34,11 +34,12 @@
 
         public void AddAdditionalTreasure()
         {
-            this[GetEmptyPosition()] = 'X';
+            this[GetEmptyPosition()] = MapCell.Treasure;
             TreasuresOnTheMap++;
         }
 
-        public bool IsNotWall(Point position) => this[position] != '|' && this[position] != '-';
+        public bool IsNotWall(Point position) => this[position] != MapCell.HorizontalWall && 
+                                                 this[position] != MapCell.VerticalWall;
 
         public Point GetEmptyPosition()
         {
@@ -48,7 +49,7 @@
                 var position = new Point(random.Next(Map.GetLength(0)),
                     random.Next(Map.GetLength(1)));
 
-                if (this[position] == ' ')
+                if (this[position] == MapCell.Empty)
                     return position;
             }
         }
@@ -57,15 +58,15 @@
         {
             for (var i = 0; i < Map.GetLength(0); i++)
                 for (var j = 0; j < Map.GetLength(1); j++)
-                    if (Map[i, j] == 'X')
+                    if (Map[i, j] == MapCell.Treasure)
                         TreasuresOnTheMap += 1;
         }
 
-        private ConsoleColor GetMapObjectsColor(char symbol) => symbol switch
+        private ConsoleColor GetMapObjectsColor(MapCell symbol) => symbol switch
         {
-            'X' => ConsoleColor.Cyan,
-            'A' or 'D' or 'H' => ConsoleColor.DarkGreen,
-            '@' => ConsoleColor.Yellow,
+            MapCell.Treasure => ConsoleColor.Cyan,
+            MapCell.ArmorBonus or MapCell.DamageBonus or MapCell.HealthBonus => ConsoleColor.DarkGreen,
+            MapCell.AngryDog => ConsoleColor.Yellow,
             _ => ConsoleColor.DarkYellow
         };
     }

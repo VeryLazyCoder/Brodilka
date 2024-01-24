@@ -17,31 +17,31 @@
             ConsoleKey.S,
             ConsoleKey.Spacebar,
         };
-        private readonly Dictionary<char, Action<Player, GameMap>> _actionsOnCollision = new()
+        private readonly Dictionary<MapCell, Action<Player, GameMap>> _actionsOnCollision = new()
         {
-            ['X'] = (player, map) =>
+            [MapCell.Treasure] = (player, map) =>
             {
                 player.AddTreasure();
-                map[player.Position] = ' ';
+                map[player.Position] = MapCell.Empty;
                 player.RaiseStats();
             },
-            ['A'] = (player, map) =>
+            [MapCell.ArmorBonus] = (player, map) =>
             {
                 player.ChangeArmorFor(3);
-                map[player.Position] = ' ';
+                map[player.Position] = MapCell.Empty;
             },
-            ['D'] = (player, map) =>
+            [MapCell.DamageBonus] = (player, map) =>
             {
                 player.ChangeDamageFor(player.Damage / 3);
-                map[player.Position] = ' ';
+                map[player.Position] = MapCell.Empty;
             },
-            ['H'] = (player, map) =>
+            [MapCell.HealthBonus] = (player, map) =>
             {
                 player.ChangeHealthFor(player.Health / 3);
-                map[player.Position] = ' ';
+                map[player.Position] = MapCell.Empty;
             },
-            ['@'] = (player, map) => player.MovesAvailable -= 10,
-            [' '] = (player, map) => { },
+            [MapCell.AngryDog] = (player, map) => player.MovesAvailable -= 10,
+            [MapCell.Empty] = (player, map) => { },
         };
         private readonly List<IEnemy> _enemies;
         private readonly RandomEventsHandler _eventHandler;

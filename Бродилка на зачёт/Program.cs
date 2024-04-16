@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data;
+using System.Text.RegularExpressions;
+using HodimBrodim.DBData;
 
 namespace HodimBrodim
 {
@@ -9,11 +11,14 @@ namespace HodimBrodim
 
         private static void Main()
         {
+            SetCurrentUser(GetAuthorizationHandler());
+            Console.WriteLine(CurrentUser.Account);
+            
             SetGameParameters();
             GiveAdviceToPlayer();
             Console.CursorVisible = false;
 
-            var startMoves = GameMap.GetMovesOnChosenMap(_mapVariant);
+            var startMoves = GetMovesOnMapAmount();
             RecordsRepository.LoadRecords(_mapVariant);
             var wannaPlay = true;
             
@@ -126,6 +131,77 @@ namespace HodimBrodim
                         "Повторите ввод");
                 }
             }
+        }
+
+        private static int GetMovesOnMapAmount() => _mapVariant switch
+        {
+            1 => 120,
+            2 => 160,
+            _ => 300
+        };
+
+        private static AuthorizationHandler GetAuthorizationHandler()
+        {
+
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("1 - Авторизоваться, 2 - зарегистрироваться");
+                    var result = int.Parse(Console.ReadLine());
+                    if (result < 1 || result > 2)
+                        throw new FormatException();
+                    return result == 1 ? SignIn() : SignUp();
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Такой опции нет");
+                    continue;
+                }
+                catch (DataException e)
+                {
+                    Console.WriteLine(e.Message);
+                    continue;
+                }
+            }
+        }
+
+        private static AuthorizationHandler SignUp()
+        {
+            Console.WriteLine("Введите имя");
+            var name = Console.ReadLine();
+            Console.WriteLine("Введите логин");
+            var login = Console.ReadLine();
+            Console.WriteLine("Введите и запомните свой пароль, восстановить его будет невозможно");
+            var password = Console.ReadLine();
+
+            return AuthorizationHandler.SignUp(name, login, password);
+        }
+
+        private static AuthorizationHandler SignIn()
+        {
+            Console.WriteLine("Введите логин");
+            var login = Console.ReadLine();
+            Console.WriteLine("Введите свой пароль");
+            var password = Console.ReadLine();
+
+            return AuthorizationHandler.SignIn(login, password);
+        }
+
+        private static void SetCurrentUser(AuthorizationHandler handler)
+        {
+            Console.WriteLine("Ваши аккаунты:");
+            var accounts = handler.DisplayConnectedAccounts();
+            Console.WriteLine("Выберите аккаунт под которым будете играть или введите 0, чтобы создать новый");
+            var choice = int.Parse(Console.ReadLine());
+            if (choice == 0)
+            {
+                Console.WriteLine("Введите ваш никнейм");
+                var nick = Console.ReadLine();
+                handler.CreateAndChooseGameAccount(nick);
+            }
+            else
+                accounts[choice - 1].Register();
         }
     }
 }
